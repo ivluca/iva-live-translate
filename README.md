@@ -1,5 +1,5 @@
 <div align="center">
-  🌐 <strong>Read in English</strong> | <a href="README-fa.md">خواندن به زبان فارسی</a>
+  🌐 <strong>Read in English</strong>
 </div>
 
 <div align="center">

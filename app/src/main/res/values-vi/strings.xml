@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ALAD</string>
+    <string name="app_name_full">ALAD (Thuyết minh trực tiếp thời gian thực)</string>
+    <string name="system_status">Trạng thái hệ thống</string>
+    <string name="status_connected">Đang thuyết minh trực tiếp</string>
+    <string name="status_disconnected">Sẵn sàng / Chưa kết nối</string>
+    <string name="target_dubbing_language">Ngôn ngữ thuyết minh đích</string>
+    <string name="select_language">Chọn ngôn ngữ</string>
+    <string name="no_results_found">Không tìm thấy kết quả</string>
+    <string name="floating_widget">Cửa sổ nổi (Widget)</string>
+    <string name="enable_overlay">Bật cửa sổ nổi để điều khiển ngoài ứng dụng</string>
+    <string name="grant_permission_widget">Cấp quyền để sử dụng cửa sổ nổi</string>
+    <string name="btn_stop">Dừng thuyết minh</string>
+    <string name="btn_start">Bắt đầu thuyết minh</string>
+    <string name="settings">Cài đặt</string>
+    <string name="gemini_api_key">Khóa Gemini API Key</string>
+    <string name="dubbing_volume">Âm lượng giọng AI: %1$d%%</string>
+    <string name="original_volume">Âm lượng video gốc: %1$d%%</string>
+    <string name="volume_description">Điều chỉnh âm lượng giọng AI và âm thanh gốc độc lập.</string>
+    <string name="save_settings">Lưu cài đặt</string>
+    <string name="settings_saved">Đã lưu cài đặt</string>
+    <string name="hide">Ẩn</string>
+    <string name="show">Hiện</string>
+    <string name="get_api_key">Lấy Gemini API Key</string>
+    <string name="api_key_guide">Để sử dụng ứng dụng này, bạn cần có Gemini API Key miễn phí từ Google AI Studio.</string>
+    <string name="help_title">Hướng dẫn sử dụng ALAD</string>
+    <string name="help_content">1. Vào Cài đặt và nhập Gemini API Key của bạn.\n2. Chọn ngôn ngữ đích và ngữ điệu/phương ngữ.\n3. Điều chỉnh thanh trượt Bộ trộn âm thanh cho giọng AI và âm thanh nền.\n4. Nhấn \'Bắt đầu thuyết minh\' để bắt đầu dịch thời gian thực.\n5. Nếu cài đặt trên thiết bị Samsung (One UI 6+), hãy tạm tắt Tự động chặn (Auto Blocker) trong Cài đặt bảo mật nếu quá trình cài đặt bị chặn.</string>
+    <string name="close">Đóng</string>
+
+    <string name="voice_persona">Giọng đọc AI</string>
+    <string name="voice_persona_desc">Chọn chất giọng người kể chuyện AI cho tổng hợp giọng nói trực tiếp</string>
+    <string name="voice_puck">Puck (Năng động &amp; Thân thiện)</string>
+    <string name="voice_charon">Charon (Trầm ấm &amp; Vang)</string>
+    <string name="voice_aoede">Aoede (Ngọt ngào &amp; Ấm áp)</string>
+    <string name="voice_fenrir">Fenrir (Rõ ràng &amp; Uy lực)</string>
+    <string name="voice_kore">Kore (Nhẹ nhàng &amp; Điềm tĩnh)</string>
+
+    <string name="dubbing_mode">Chế độ thuyết minh</string>
+    <string name="mode_hybrid">Giọng nói + Phụ đề</string>
+    <string name="mode_audio_only">Chỉ giọng nói</string>
+    <string name="mode_subtitle_only">Chỉ phụ đề (Im lặng)</string>
+    <string name="live_subtitles">Phụ đề trực tiếp</string>
+    <string name="subtitles_preview">Bản ghi phụ đề thời gian thực</string>
+    <string name="subtitles_waiting">Đang chờ giọng nói...</string>
+
+    <!-- New v1.3.0 features -->
+    <string name="audio_mixer">Bộ trộn âm thanh kép</string>
+    <string name="dubbed_voice_volume">Giọng thuyết minh AI</string>
+    <string name="original_media_volume">Âm thanh gốc</string>
+    <string name="target_dialect">Ngữ điệu / Phương ngữ</string>
+    <string name="select_dialect">Chọn phương ngữ (Tùy chọn)</string>
+    <string name="standard_dialect">Chuẩn / Mặc định</string>
+    <string name="dual_subtitles">Phụ đề song ngữ trực tiếp</string>
+    <string name="dual_subtitles_desc">Hiển thị giọng gốc bên trên phụ đề đã dịch</string>
+    <string name="mute_dubbing">Tắt tiếng giọng AI</string>
+    <string name="mute_original">Tắt tiếng video gốc</string>
+</resources>

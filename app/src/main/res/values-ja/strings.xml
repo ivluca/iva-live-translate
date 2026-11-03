@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ALAD</string>
+    <string name="app_name_full">ALAD (リアルタイム音声吹き替え)</string>
+    <string name="system_status">システムステータス</string>
+    <string name="status_connected">リアルタイム吹き替え実行中</string>
+    <string name="status_disconnected">待機中 / 未接続</string>
+    <string name="target_dubbing_language">吹き替え対象言語</string>
+    <string name="select_language">言語を選択</string>
+    <string name="no_results_found">見つかりませんでした</string>
+    <string name="floating_widget">フローティングウィジェット</string>
+    <string name="enable_overlay">アプリ外で操作するためのオーバーレイを有効化</string>
+    <string name="grant_permission_widget">ウィジェット使用の権限を許可</string>
+    <string name="btn_stop">吹き替え停止</string>
+    <string name="btn_start">吹き替え開始</string>
+    <string name="settings">設定</string>
+    <string name="gemini_api_key">Gemini APIキー</string>
+    <string name="dubbing_volume">AI吹き替え音量: %1$d%%</string>
+    <string name="original_volume">元動画の音量: %1$d%%</string>
+    <string name="volume_description">AI音声と元のメディア音量を個別に調整できます。</string>
+    <string name="save_settings">設定を保存</string>
+    <string name="settings_saved">設定を保存しました</string>
+    <string name="hide">隠す</string>
+    <string name="show">表示</string>
+    <string name="get_api_key">Gemini APIキーを取得</string>
+    <string name="api_key_guide">このアプリを使用するには、Google AI Studioから無料のGemini APIキーを取得する必要があります。</string>
+    <string name="help_title">ALADの使い方</string>
+    <string name="help_content">1. 設定画面でGemini APIキーを入力します。\n2. 吹き替え対象言語と方言を選択します。\n3. オーディオミキサーでAI音声と元のメディア音量を調整します。\n4. 「吹き替え開始」をタップしてリアルタイム翻訳を開始します。\n5. Samsung端末（One UI 6+）でインストールがブロックされた場合は、セキュリティ設定でオートブロッカーを一時的に無効にしてください。</string>
+    <string name="close">閉じる</string>
+
+    <string name="voice_persona">AI音声ペルソナ</string>
+    <string name="voice_persona_desc">リアルタイム音声合成のAIナレーター音声を選択</string>
+    <string name="voice_puck">Puck（明るく親しみやすい）</string>
+    <string name="voice_charon">Charon（重厚で深みのある声）</string>
+    <string name="voice_aoede">Aoede（メロディアスで温かい）</string>
+    <string name="voice_fenrir">Fenrir（明瞭で堂々とした声）</string>
+    <string name="voice_kore">Kore（穏やかで落ち着いた声）</string>
+
+    <string name="dubbing_mode">吹き替えモード</string>
+    <string name="mode_hybrid">音声 + リアルタイム字幕</string>
+    <string name="mode_audio_only">音声のみ</string>
+    <string name="mode_subtitle_only">字幕のみ（無音）</string>
+    <string name="live_subtitles">リアルタイム字幕</string>
+    <string name="subtitles_preview">リアルタイム翻訳テキスト</string>
+    <string name="subtitles_waiting">音声を待機中...</string>
+
+    <!-- New v1.3.0 features -->
+    <string name="audio_mixer">デュアルオーディオミキサー</string>
+    <string name="dubbed_voice_volume">AI吹き替え音声</string>
+    <string name="original_media_volume">元メディア音声</string>
+    <string name="target_dialect">地域アクセント / 方言</string>
+    <string name="select_dialect">方言を選択（任意）</string>
+    <string name="standard_dialect">標準 / デフォルト</string>
+    <string name="dual_subtitles">デュアルリアルタイム字幕</string>
+    <string name="dual_subtitles_desc">翻訳字幕の上に元の音声を同時に表示</string>
+    <string name="mute_dubbing">AI音声をミュート</string>
+    <string name="mute_original">元音声をミュート</string>
+</resources>
