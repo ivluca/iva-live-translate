@@ -14,7 +14,7 @@ Skill này cung cấp toàn bộ bối cảnh kiến trúc, thông số kỹ thu
 ## 🗺️ Bản đồ Codebase Nhanh (Cheat Sheet)
 
 ```text
-app/src/main/kotlin/com/alad/app/
+app/src/main/kotlin/com/iva/translate/app/
 ├── core/
 │   ├── audio/
 │   │   ├── AudioCaptureManager.kt      # Thu âm nội bộ hệ thống (16kHz PCM mono, 40ms/chunk)
@@ -68,18 +68,18 @@ Bất kỳ thay đổi nào liên quan đến Audio hoặc Network đều **BẮ
 ## 💡 Hướng dẫn phát triển các tác vụ thường gặp
 
 ### 1. Thay đổi hoặc thêm Dialect / Ngữ điệu
-Sửa file [`Languages.kt`](file:///D:/Workspace/ALAD-Mobile/app/src/main/kotlin/com/alad/app/presentation/main/Languages.kt):
+Sửa file [`Languages.kt`](file:///D:/Workspace/ALAD-Mobile/app/src/main/kotlin/com/iva/translate/app/presentation/main/Languages.kt):
 - Thêm đối tượng `DialectOption(code, displayName, promptInstruction)`.
 - `promptInstruction` sẽ được đưa tự động vào `systemInstruction` của WebSocket setup payload để hướng dẫn Gemini nói đúng phương ngữ mong muốn.
 
 ### 2. Thêm Voice Persona hoặc tinh chỉnh hiệu ứng âm thanh DSP
-Sửa file [`AudioPlayerManager.kt`](file:///D:/Workspace/ALAD-Mobile/app/src/main/kotlin/com/alad/app/core/audio/AudioPlayerManager.kt):
+Sửa file [`AudioPlayerManager.kt`](file:///D:/Workspace/ALAD-Mobile/app/src/main/kotlin/com/iva/translate/app/core/audio/AudioPlayerManager.kt):
 - Tinh chỉnh thuật toán lọc IIR trong vòng lặp `for (i in 0 until numSamples)`.
 - Luôn giữ biến `prevSample` để duy trì bộ lọc liên tục qua các chunk âm thanh liền kề.
 
 ### 3. Đồng bộ trạng thái phiên dịch với UI mới
 - **KHÔNG ĐƯỢC** gọi trực tiếp vào Service từ UI.
-- Luôn đọc và ghi qua [`DubbingSessionRepository`](file:///D:/Workspace/ALAD-Mobile/app/src/main/kotlin/com/alad/app/data/repository/DubbingSessionRepository.kt).
+- Luôn đọc và ghi qua [`DubbingSessionRepository`](file:///D:/Workspace/ALAD-Mobile/app/src/main/kotlin/com/iva/translate/app/data/repository/DubbingSessionRepository.kt).
 - Mọi thành phần UI quan sát `DubbingSessionRepository.*` dưới dạng Kotlin `StateFlow`.
 
 ---

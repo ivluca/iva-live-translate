@@ -6,7 +6,7 @@ Tài liệu này chi tiết hóa cách thức ALAD / IVA quản lý trạng thá
 
 ## 1. Phiên làm việc thời gian thực: `DubbingSessionRepository`
 
-### Vị trí: `app/src/main/kotlin/com/alad/app/data/repository/DubbingSessionRepository.kt`
+### Vị trí: `app/src/main/kotlin/com/iva/translate/app/data/repository/DubbingSessionRepository.kt`
 
 `DubbingSessionRepository` là một Singleton in-memory đóng vai trò **Single Source of Truth** cho toàn bộ dữ liệu trạng thái tương tác giữa `AudioDubbingForegroundService`, `OverlayWidgetService` và các màn hình Compose (`MainScreen`, `SettingsScreen`).
 
@@ -31,7 +31,7 @@ flowchart TD
 
 ## 2. Cấu hình người dùng bền vững: `UserPreferencesRepository`
 
-### Vị trí: `app/src/main/kotlin/com/alad/app/data/repository/UserPreferencesRepository.kt`
+### Vị trí: `app/src/main/kotlin/com/iva/translate/app/data/repository/UserPreferencesRepository.kt`
 
 Sử dụng Jetpack DataStore Preferences để lưu trữ bất đồng bộ các tùy chọn cấu hình của người dùng.
 
@@ -48,7 +48,7 @@ Sử dụng Jetpack DataStore Preferences để lưu trữ bất đồng bộ c�
 
 ## 3. Danh mục ngôn ngữ & Phương ngữ: `Languages.kt`
 
-### Vị trí: `app/src/main/kotlin/com/alad/app/presentation/main/Languages.kt`
+### Vị trí: `app/src/main/kotlin/com/iva/translate/app/presentation/main/Languages.kt`
 
 Đã được tối ưu hóa chỉ tập trung vào 3 ngôn ngữ mục tiêu chính (không kèm emoji cờ, dùng Select Box chuẩn):
 

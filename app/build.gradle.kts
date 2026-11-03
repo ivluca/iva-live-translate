@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.alad.app"
+    namespace = "com.iva.translate.app"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.alad.app"
+        applicationId = "com.iva.translate.app"
         minSdk = 29
         targetSdk = 34
         versionCode = 4
@@ -22,25 +22,12 @@ android {
 
     signingConfigs {
         create("release") {
-            val releaseKeystore = rootProject.file("alad-release.jks")
-            val legacyKeystore = rootProject.file("alad-key.jks")
+            val releaseKeystore = rootProject.file("iva-release.jks")
             if (releaseKeystore.exists()) {
                 storeFile = releaseKeystore
-                storePassword = "alad123456"
-                keyAlias = "alad"
-                keyPassword = "alad123456"
-                enableV1Signing = true
-                enableV2Signing = true
-                enableV3Signing = true
-                enableV4Signing = true
-            } else if (legacyKeystore.exists()) {
-                storeFile = legacyKeystore
-                storePassword = project.findProperty("ALAD_STORE_PASSWORD")?.toString()
-                    ?: System.getenv("ALAD_STORE_PASSWORD") ?: ""
-                keyAlias = project.findProperty("ALAD_KEY_ALIAS")?.toString()
-                    ?: System.getenv("ALAD_KEY_ALIAS") ?: "key0"
-                keyPassword = project.findProperty("ALAD_KEY_PASSWORD")?.toString()
-                    ?: System.getenv("ALAD_KEY_PASSWORD") ?: ""
+                storePassword = "ivanluca*a"
+                keyAlias = "iva"
+                keyPassword = "ivanluca*a"
                 enableV1Signing = true
                 enableV2Signing = true
                 enableV3Signing = true
@@ -53,7 +40,7 @@ android {
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            val releaseKeystore = rootProject.file("alad-release.jks")
+            val releaseKeystore = rootProject.file("iva-release.jks")
             if (releaseKeystore.exists()) {
                 signingConfig = signingConfigs.getByName("release")
             }

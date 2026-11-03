@@ -6,7 +6,7 @@ Pipeline âm thanh là xương sống của ALAD Mobile, đảm bảo độ tr�
 
 ## 1. Thu âm nội bộ (Internal Audio Capture)
 
-### File: `app/src/main/kotlin/com/alad/app/core/audio/AudioCaptureManager.kt`
+### File: `app/src/main/kotlin/com/iva/translate/app/core/audio/AudioCaptureManager.kt`
 
 Khác với các ứng dụng dịch thông thường phải sử dụng Microphone vật lý (dễ bị nhiễu tiếng ồn môi trường và phòng vọng), ALAD bắt luồng tín hiệu âm thanh kỹ thuật số sạch trực tiếp từ hệ thống Android:
 
@@ -30,7 +30,7 @@ val config = AudioPlaybackCaptureConfiguration.Builder(mediaProjection)
 
 ## 2. Phát âm thanh AI (Audio Playback)
 
-### File: `app/src/main/kotlin/com/alad/app/core/audio/AudioPlayerManager.kt`
+### File: `app/src/main/kotlin/com/iva/translate/app/core/audio/AudioPlayerManager.kt`
 
 Âm thanh thuyết minh nhận về từ Gemini API là PCM 24kHz. `AudioPlayerManager` nhận dữ liệu qua Kotlin Coroutine Channel (`Channel<ByteArray>(Channel.UNLIMITED)`), chạy trên luồng `Dispatchers.IO` với cấu hình sau:
 
