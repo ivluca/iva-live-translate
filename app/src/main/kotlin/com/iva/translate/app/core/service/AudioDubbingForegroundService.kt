@@ -240,26 +240,28 @@ class AudioDubbingForegroundService : Service() {
                         }
                     }
 
-                    // 5. Reconnect WebSocket ONLY when target language or dialect genuinely changes
+                    // 5. Reconnect WebSocket when target language, dialect or voice persona genuinely changes
                     launch {
                         var activeLang = targetLang
                         var activeDialect = targetDialect
+                        var activeVoice = voicePersona
                         kotlinx.coroutines.flow.combine(
                             repository.targetLangFlow,
-                            repository.targetDialectFlow
-                        ) { lang, dialect -> Pair(lang, dialect) }.collect { (newLang, newDialect) ->
-                            if (newLang != activeLang || newDialect != activeDialect) {
+                            repository.targetDialectFlow,
+                            repository.voicePersonaFlow
+                        ) { lang, dialect, voice -> Triple(lang, dialect, voice) }.collect { (newLang, newDialect, newVoice) ->
+                            if (newLang != activeLang || newDialect != activeDialect || newVoice != activeVoice) {
                                 activeLang = newLang
                                 activeDialect = newDialect
+                                activeVoice = newVoice
                                 val currentKey = repository.apiKeyFlow.first()
-                                val currentVoice = repository.voicePersonaFlow.first()
                                 val currentMode = repository.dubbingModeFlow.first()
                                 webSocketManager?.disconnect()
                                 webSocketManager?.connect(
                                     apiKey = currentKey,
                                     sourceLang = "",
                                     targetLang = newLang,
-                                    voicePersona = currentVoice,
+                                    voicePersona = newVoice,
                                     dubbingMode = currentMode,
                                     targetDialect = newDialect
                                 )

@@ -31,10 +31,12 @@ class UserPreferencesRepository(private val context: Context) {
         const val MODE_SUBTITLE_ONLY = "SUBTITLE_ONLY" // Live subtitles only (silent mode)
 
         val AVAILABLE_VOICES = listOf(
+            "Aoede",
+            "Kore",
             "Zephyr",
-            "Achernar",
-            "Fenrir",
-            "Leda"
+            "Puck",
+            "Charon",
+            "Fenrir"
         )
     }
 
@@ -47,7 +49,7 @@ class UserPreferencesRepository(private val context: Context) {
     val isDubbingMutedFlow: Flow<Boolean> = context.dataStore.data.map { it[IS_DUBBING_MUTED] ?: false }.distinctUntilChanged()
     val originalVolumeFlow: Flow<Float> = context.dataStore.data.map { it[ORIGINAL_VOLUME] ?: 0.30f }.distinctUntilChanged()
     val isOriginalMutedFlow: Flow<Boolean> = context.dataStore.data.map { it[IS_ORIGINAL_MUTED] ?: false }.distinctUntilChanged()
-    val voicePersonaFlow: Flow<String> = context.dataStore.data.map { it[VOICE_PERSONA] ?: "Zephyr" }.distinctUntilChanged()
+    val voicePersonaFlow: Flow<String> = context.dataStore.data.map { it[VOICE_PERSONA]?.takeIf { v -> AVAILABLE_VOICES.contains(v) } ?: "Aoede" }.distinctUntilChanged()
     val dubbingModeFlow: Flow<String> = context.dataStore.data.map { it[DUBBING_MODE] ?: MODE_HYBRID }.distinctUntilChanged()
     val showDualSubtitlesFlow: Flow<Boolean> = context.dataStore.data.map { it[SHOW_DUAL_SUBTITLES] ?: true }.distinctUntilChanged()
 

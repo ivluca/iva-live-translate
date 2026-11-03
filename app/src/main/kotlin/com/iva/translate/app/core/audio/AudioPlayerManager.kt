@@ -118,34 +118,9 @@ class AudioPlayerManager(private val context: Context) {
                         val byteIndex = i * 2
                         val low = chunk[byteIndex].toInt() and 0xFF
                         val high = chunk[byteIndex + 1].toInt()
-                        var sample = ((high shl 8) or low).toShort().toFloat()
+                        val sample = ((high shl 8) or low).toShort().toFloat()
 
-                        // 1. Voice Persona Character Filtering (DSP timbre shaping)
-                        sample = when (persona) {
-                            "Zephyr" -> {
-                                // Bright & Clear: presence high-shelf boost
-                                val diff = sample - prevSample
-                                (sample * 0.86f) + (diff * 0.22f)
-                            }
-                            "Achernar" -> {
-                                // Soft & Gentle: warm smooth roll-off
-                                (sample * 0.80f) + (prevSample * 0.20f)
-                            }
-                            "Fenrir" -> {
-                                // Authoritative & Bold: firm dynamic presence
-                                val diff = sample - prevSample
-                                (sample * 0.90f) + (diff * 0.18f)
-                            }
-                            "Leda" -> {
-                                // Youthful & Crisp: natural presence
-                                val diff = sample - prevSample
-                                (sample * 0.88f) + (diff * 0.20f)
-                            }
-                            else -> sample
-                        }
-                        prevSample = sample
-
-                        // 2. Volume Gain Scaling with Soft Limiter
+                        // Pristine volume gain scaling with soft limiter
                         val scaled = (sample * gain).coerceIn(-32767f, 32767f).toInt()
 
                         processedChunk[byteIndex] = (scaled and 0xFF).toByte()

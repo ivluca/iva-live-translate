@@ -154,7 +154,17 @@ class ALADWebSocketManager(private val client: OkHttpClient) {
 
         val dialectInstruction = com.iva.translate.app.presentation.main.supportedDialects[targetLangCode]
             ?.find { it.code.equals(targetDialect, ignoreCase = true) }
-            ?.promptInstruction ?: com.iva.translate.app.presentation.main.supportedDialects[targetLangCode]?.firstOrNull()?.promptInstruction ?: if (targetDialect.isNotEmpty()) "Speak and translate in $targetDialect dialect" else ""
+            ?.promptInstruction ?: com.iva.translate.app.presentation.main.supportedDialects[targetLangCode]?.firstOrNull()?.promptInstruction ?: if (targetDialect.isNotEmpty()) "Speak and translate in $targetDialect dialect." else ""
+
+        val voicePrompt = when (voicePersona) {
+            "Aoede" -> "Speak strictly with a warm, natural, gentle feminine voice. Do not mimic or adapt to the source speaker's pitch or acoustic timbre."
+            "Kore" -> "Speak strictly with a clear, energetic, firm feminine tone. Do not mimic or adapt to the source speaker's pitch or acoustic timbre."
+            "Zephyr" -> "Speak strictly with a clear, bright, high-pitched feminine tone. Do not mimic or adapt to the source speaker's pitch or acoustic timbre."
+            "Puck" -> "Speak strictly with a lively, upbeat, natural masculine voice. Do not mimic or adapt to the source speaker's pitch or acoustic timbre."
+            "Charon" -> "Speak strictly with a calm, deep, professional masculine tone. Do not mimic or adapt to the source speaker's pitch or acoustic timbre."
+            "Fenrir" -> "Speak strictly with a firm, confident, authoritative masculine voice. Do not mimic or adapt to the source speaker's pitch or acoustic timbre."
+            else -> "Speak strictly with a natural, clear voice."
+        }
 
         val setupPayload = JSONObject().apply {
             put("setup", JSONObject().apply {
@@ -176,13 +186,11 @@ class ALADWebSocketManager(private val client: OkHttpClient) {
                     })
                 })
 
-                if (dialectInstruction.isNotEmpty()) {
-                    put("systemInstruction", JSONObject().apply {
-                        put("parts", JSONArray().put(JSONObject().apply {
-                            put("text", "You are an expert real-time AI live audio translator. $dialectInstruction. Maintain natural pacing and high clarity.")
-                        }))
-                    })
-                }
+                put("systemInstruction", JSONObject().apply {
+                    put("parts", JSONArray().put(JSONObject().apply {
+                        put("text", "You are an expert real-time AI live audio translator. $dialectInstruction $voicePrompt Maintain natural pacing and high clarity.")
+                    }))
+                })
 
                 // Direct children of BidiGenerateContentSetup according to Google Gemini Live API specification
                 put("inputAudioTranscription", JSONObject())
