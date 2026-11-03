@@ -23,3 +23,8 @@ Tệp này được tự động đọc bởi Antigravity / Gemini CLI khi làm 
 5. **Quy tắc Git & Phiên bản:**
    - **Tuyệt đối không tự động chạy lệnh `git commit` hay `git push`** cho tới khi có yêu cầu hoặc mệnh lệnh rõ ràng từ người dùng.
    - Giữ nguyên các thay đổi trong Working Directory để người dùng chủ động kiểm tra và quyết định việc commit.
+
+6. **Quy tắc điều phối Subagent & Xử lý song song:**
+   - Được phép chia nhỏ nhiệm vụ và kích hoạt các subagent xử lý song song các tác vụ độc lập (ví dụ: nghiên cứu độc lập, refactor module riêng biệt, chuẩn bị assets/tài nguyên) nhằm tối ưu thời gian.
+   - Giới hạn tối đa **3 subagent** chạy cùng một lúc để tránh xung đột tài nguyên và phân mảnh ngữ cảnh.
+   - Agent chính giữ vai trò điều phối tổng thể, tổng hợp kết quả, quản lý build và tương tác trực tiếp với người dùng.

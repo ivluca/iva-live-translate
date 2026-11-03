@@ -1,6 +1,8 @@
 package com.alad.app.presentation.settings
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.Spring
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -18,7 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
@@ -55,14 +56,14 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .statusBarsPadding()
-                        .padding(horizontal = 20.dp, vertical = 12.dp),
+                        .padding(horizontal = 20.dp, vertical = 14.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     GlassIconButton(
                         icon = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
                         onClick = onBack,
-                        tint = Color.White
+                        tint = TextPrimary
                     )
 
                     Spacer(modifier = Modifier.width(16.dp))
@@ -71,7 +72,8 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                         text = stringResource(R.string.settings),
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = TextPrimary,
+                            fontSize = 18.sp
                         )
                     )
                 }
@@ -84,34 +86,32 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                     .fillMaxSize()
                     .padding(paddingValues)
                     .verticalScroll(scrollState)
-                    .padding(horizontal = 20.dp, vertical = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp)
+                    .padding(horizontal = 20.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 // 1. API Key Configuration
                 GlassCard(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(24.dp),
-                    borderColor = NeonCyan,
-                    borderAlpha = 0.25f
+                    shape = RoundedCornerShape(10.dp)
                 ) {
                     Column(
-                        modifier = Modifier.padding(20.dp)
+                        modifier = Modifier.padding(16.dp)
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(40.dp)
-                                    .clip(CircleShape)
-                                    .background(NeonCyan.copy(alpha = 0.15f)),
+                                    .size(36.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(BrandPrimarySubtle),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Key,
                                     contentDescription = null,
-                                    tint = NeonCyan,
-                                    modifier = Modifier.size(20.dp)
+                                    tint = BrandPrimary,
+                                    modifier = Modifier.size(18.dp)
                                 )
                             }
 
@@ -121,84 +121,68 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                                 Text(
                                     text = stringResource(R.string.gemini_api_key),
                                     fontWeight = FontWeight.Bold,
-                                    color = Color.White,
-                                    fontSize = 16.sp
+                                    color = TextPrimary,
+                                    fontSize = 15.sp
                                 )
                                 Text(
                                     text = "Google AI Studio Live API",
-                                    color = TextSecondary,
+                                    color = TextMuted,
                                     fontSize = 12.sp
                                 )
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(14.dp))
 
                         OutlinedTextField(
                             value = apiKey,
                             onValueChange = viewModel::updateApiKey,
-                            placeholder = { Text("AIzaSy...", color = TextSecondary.copy(alpha = 0.6f)) },
+                            placeholder = { Text("AIzaSy...", color = TextMuted) },
                             visualTransformation = if (apiKeyVisible) VisualTransformation.None else PasswordVisualTransformation(),
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp),
+                            shape = RoundedCornerShape(8.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color(0x25FFFFFF),
-                                unfocusedContainerColor = Color(0x12FFFFFF),
-                                focusedBorderColor = NeonCyan,
-                                unfocusedBorderColor = Color.White.copy(alpha = 0.15f),
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White
+                                focusedContainerColor = CardBackgroundElevated,
+                                unfocusedContainerColor = CardBackgroundElevated,
+                                focusedBorderColor = BrandPrimary,
+                                unfocusedBorderColor = CardBorderSubtle,
+                                focusedTextColor = TextPrimary,
+                                unfocusedTextColor = TextPrimary
                             ),
                             trailingIcon = {
                                 IconButton(onClick = { apiKeyVisible = !apiKeyVisible }) {
                                     Icon(
                                         imageVector = if (apiKeyVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                                         contentDescription = if (apiKeyVisible) stringResource(R.string.hide) else stringResource(R.string.show),
-                                        tint = if (apiKeyVisible) NeonCyan else TextSecondary
+                                        tint = if (apiKeyVisible) BrandPrimary else TextMuted
                                     )
                                 }
                             }
                         )
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
 
                         Text(
                             text = stringResource(R.string.api_key_guide),
                             color = TextSecondary,
-                            fontSize = 13.sp,
-                            lineHeight = 20.sp
+                            fontSize = 12.5.sp,
+                            lineHeight = 18.sp
                         )
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(14.dp))
 
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(RoundedCornerShape(14.dp))
-                                .background(
-                                    Brush.horizontalGradient(
-                                        listOf(
-                                            NeonCyan.copy(alpha = 0.15f),
-                                            NeonPurple.copy(alpha = 0.15f)
-                                        )
-                                    )
-                                )
-                                .border(
-                                    BorderStroke(
-                                        1.dp,
-                                        Brush.horizontalGradient(
-                                            listOf(
-                                                NeonCyan.copy(alpha = 0.4f),
-                                                NeonPurple.copy(alpha = 0.4f)
-                                            )
-                                        )
-                                    ),
-                                    shape = RoundedCornerShape(14.dp)
-                                )
+                                .height(46.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(CardBackgroundElevated)
+                                .border(BorderStroke(1.dp, CardBorderSubtle), RoundedCornerShape(8.dp))
                                 .clickable {
                                     uriHandler.openUri("https://aistudio.google.com/app/apikey")
                                 }
-                                .padding(horizontal = 16.dp, vertical = 12.dp)
+                                .padding(horizontal = 14.dp),
+                            contentAlignment = Alignment.Center
                         ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -207,16 +191,16 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                             ) {
                                 Text(
                                     text = stringResource(R.string.get_api_key),
-                                    color = NeonCyan,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 14.sp
+                                    color = BrandPrimary,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 13.5.sp
                                 )
 
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.OpenInNew,
                                     contentDescription = null,
-                                    tint = NeonCyan,
-                                    modifier = Modifier.size(18.dp)
+                                    tint = BrandPrimary,
+                                    modifier = Modifier.size(16.dp)
                                 )
                             }
                         }
@@ -226,24 +210,22 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                 // 2. AI Voice Persona Selection Card
                 GlassCard(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(24.dp),
-                    borderColor = NeonPurple,
-                    borderAlpha = 0.25f
+                    shape = RoundedCornerShape(10.dp)
                 ) {
-                    Column(modifier = Modifier.padding(20.dp)) {
+                    Column(modifier = Modifier.padding(16.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Box(
                                 modifier = Modifier
-                                    .size(40.dp)
-                                    .clip(CircleShape)
-                                    .background(NeonPurple.copy(alpha = 0.15f)),
+                                    .size(36.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(BrandPrimarySubtle),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.RecordVoiceOver,
                                     contentDescription = null,
-                                    tint = NeonPurple,
-                                    modifier = Modifier.size(20.dp)
+                                    tint = BrandPrimary,
+                                    modifier = Modifier.size(18.dp)
                                 )
                             }
 
@@ -253,18 +235,18 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                                 Text(
                                     text = stringResource(R.string.voice_persona),
                                     fontWeight = FontWeight.Bold,
-                                    color = Color.White,
-                                    fontSize = 16.sp
+                                    color = TextPrimary,
+                                    fontSize = 15.sp
                                 )
                                 Text(
                                     text = stringResource(R.string.voice_persona_desc),
-                                    color = TextSecondary,
+                                    color = TextMuted,
                                     fontSize = 12.sp
                                 )
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(14.dp))
 
                         val voices = listOf(
                             Triple("Puck", stringResource(R.string.voice_puck), "Energetic"),
@@ -279,53 +261,42 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 4.dp)
-                                    .clip(RoundedCornerShape(14.dp))
-                                    .background(
-                                        if (isSelected) {
-                                            Brush.horizontalGradient(
-                                                listOf(NeonPurple.copy(alpha = 0.25f), NeonBlue.copy(alpha = 0.15f))
-                                            )
-                                        } else {
-                                            Brush.horizontalGradient(
-                                                listOf(Color.White.copy(alpha = 0.04f), Color.White.copy(alpha = 0.02f))
-                                            )
-                                        }
-                                    )
+                                    .padding(vertical = 3.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(if (isSelected) BrandPrimarySubtle else CardBackgroundElevated)
                                     .border(
                                         BorderStroke(
                                             1.dp,
-                                            if (isSelected) NeonPurple else Color.White.copy(alpha = 0.08f)
+                                            if (isSelected) BrandPrimary else CardBorderSubtle
                                         ),
-                                        shape = RoundedCornerShape(14.dp)
+                                        shape = RoundedCornerShape(8.dp)
                                     )
                                     .clickable { viewModel.updateVoicePersona(voiceId) }
-                                    .padding(horizontal = 14.dp, vertical = 10.dp)
+                                    .padding(horizontal = 14.dp, vertical = 11.dp)
                             ) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(
-                                            text = voiceLabel,
-                                            color = if (isSelected) Color.White else Color.White.copy(alpha = 0.85f),
-                                            fontSize = 14.sp,
-                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                                        )
-                                    }
+                                    Text(
+                                        text = voiceLabel,
+                                        color = if (isSelected) TextPrimary else TextSecondary,
+                                        fontSize = 13.5.sp,
+                                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                                        modifier = Modifier.weight(1f)
+                                    )
 
                                     if (isSelected) {
                                         Box(
                                             modifier = Modifier
-                                                .clip(RoundedCornerShape(6.dp))
-                                                .background(NeonPurple.copy(alpha = 0.3f))
-                                                .padding(horizontal = 8.dp, vertical = 2.dp)
+                                                .clip(RoundedCornerShape(4.dp))
+                                                .background(BrandPrimary)
+                                                .padding(horizontal = 7.dp, vertical = 2.dp)
                                         ) {
                                             Text(
                                                 text = badge.uppercase(),
-                                                color = NeonCyan,
+                                                color = Color.White,
                                                 fontSize = 10.sp,
                                                 fontWeight = FontWeight.Bold
                                             )
@@ -337,32 +308,30 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                     }
                 }
 
-                // 4. Dual Subtitles Option Card
+                // 3. Dual Subtitles Option Card
                 GlassCard(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(24.dp),
-                    borderColor = NeonCyan,
-                    borderAlpha = 0.20f,
+                    shape = RoundedCornerShape(10.dp),
                     onClick = { viewModel.updateShowDualSubtitles(!showDualSubtitles) }
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(20.dp),
+                            .padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = stringResource(R.string.dual_subtitles),
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White,
-                                fontSize = 15.sp
+                                fontWeight = FontWeight.SemiBold,
+                                color = TextPrimary,
+                                fontSize = 14.sp
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = stringResource(R.string.dual_subtitles_desc),
-                                color = TextSecondary,
+                                color = TextMuted,
                                 fontSize = 12.sp
                             )
                         }
@@ -372,35 +341,33 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                             onCheckedChange = { viewModel.updateShowDualSubtitles(it) },
                             colors = SwitchDefaults.colors(
                                 checkedThumbColor = Color.White,
-                                checkedTrackColor = NeonCyan,
-                                uncheckedThumbColor = Color.Gray,
-                                uncheckedTrackColor = Color.White.copy(alpha = 0.1f)
+                                checkedTrackColor = BrandPrimary,
+                                uncheckedThumbColor = TextMuted,
+                                uncheckedTrackColor = CardBackgroundElevated
                             )
                         )
                     }
                 }
 
-                // 5. Dubbing Mode Card
+                // 4. Dubbing Mode Card
                 GlassCard(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(24.dp),
-                    borderColor = NeonBlue,
-                    borderAlpha = 0.25f
+                    shape = RoundedCornerShape(10.dp)
                 ) {
-                    Column(modifier = Modifier.padding(20.dp)) {
+                    Column(modifier = Modifier.padding(16.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Box(
                                 modifier = Modifier
-                                    .size(40.dp)
-                                    .clip(CircleShape)
-                                    .background(NeonBlue.copy(alpha = 0.15f)),
+                                    .size(36.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(BrandPrimarySubtle),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Tune,
                                     contentDescription = null,
-                                    tint = NeonBlue,
-                                    modifier = Modifier.size(20.dp)
+                                    tint = BrandPrimary,
+                                    modifier = Modifier.size(18.dp)
                                 )
                             }
 
@@ -410,18 +377,18 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                                 Text(
                                     text = stringResource(R.string.dubbing_mode),
                                     fontWeight = FontWeight.Bold,
-                                    color = Color.White,
-                                    fontSize = 16.sp
+                                    color = TextPrimary,
+                                    fontSize = 15.sp
                                 )
                                 Text(
                                     text = "Choose audio, subtitles, or both",
-                                    color = TextSecondary,
+                                    color = TextMuted,
                                     fontSize = 12.sp
                                 )
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(14.dp))
 
                         val modes = listOf(
                             Triple(UserPreferencesRepository.MODE_HYBRID, stringResource(R.string.mode_hybrid), Icons.Default.GraphicEq),
@@ -434,28 +401,18 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 4.dp)
-                                    .clip(RoundedCornerShape(14.dp))
-                                    .background(
-                                        if (isSelected) {
-                                            Brush.horizontalGradient(
-                                                listOf(NeonBlue.copy(alpha = 0.25f), NeonCyan.copy(alpha = 0.15f))
-                                            )
-                                        } else {
-                                            Brush.horizontalGradient(
-                                                listOf(Color.White.copy(alpha = 0.04f), Color.White.copy(alpha = 0.02f))
-                                            )
-                                        }
-                                    )
+                                    .padding(vertical = 3.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(if (isSelected) BrandPrimarySubtle else CardBackgroundElevated)
                                     .border(
                                         BorderStroke(
                                             1.dp,
-                                            if (isSelected) NeonCyan else Color.White.copy(alpha = 0.08f)
+                                            if (isSelected) BrandPrimary else CardBorderSubtle
                                         ),
-                                        shape = RoundedCornerShape(14.dp)
+                                        shape = RoundedCornerShape(8.dp)
                                     )
                                     .clickable { viewModel.updateDubbingMode(modeId) }
-                                    .padding(horizontal = 14.dp, vertical = 12.dp)
+                                    .padding(horizontal = 14.dp, vertical = 11.dp)
                             ) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
@@ -464,22 +421,22 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                                     Icon(
                                         imageVector = icon,
                                         contentDescription = null,
-                                        tint = if (isSelected) NeonCyan else TextSecondary,
-                                        modifier = Modifier.size(20.dp)
+                                        tint = if (isSelected) BrandPrimary else TextMuted,
+                                        modifier = Modifier.size(18.dp)
                                     )
                                     Spacer(modifier = Modifier.width(12.dp))
                                     Text(
                                         text = modeLabel,
-                                        color = if (isSelected) Color.White else Color.White.copy(alpha = 0.85f),
-                                        fontSize = 14.sp,
-                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                        color = if (isSelected) TextPrimary else TextSecondary,
+                                        fontSize = 13.5.sp,
+                                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                                         modifier = Modifier.weight(1f)
                                     )
                                     if (isSelected) {
                                         Icon(
                                             imageVector = Icons.Default.CheckCircle,
                                             contentDescription = null,
-                                            tint = NeonCyan,
+                                            tint = BrandPrimary,
                                             modifier = Modifier.size(18.dp)
                                         )
                                     }
@@ -489,31 +446,24 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                     }
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-                // Save Settings Button
+                // 5. Save Settings Button
                 val interactionSource = remember { MutableInteractionSource() }
                 val isPressed by interactionSource.collectIsPressedAsState()
                 val scale by animateFloatAsState(
                     targetValue = if (isPressed) 0.98f else 1.0f,
+                    animationSpec = spring(stiffness = Spring.StiffnessMedium),
                     label = "save_btn_scale"
                 )
 
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(60.dp)
+                        .height(50.dp)
                         .scale(scale)
-                        .clip(RoundedCornerShape(18.dp))
-                        .background(
-                            Brush.horizontalGradient(
-                                listOf(NeonCyan, NeonBlue, NeonViolet)
-                            )
-                        )
-                        .border(
-                            BorderStroke(1.dp, Color.White.copy(alpha = 0.4f)),
-                            shape = RoundedCornerShape(18.dp)
-                        )
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(BrandPrimary)
                         .clickable(
                             interactionSource = interactionSource,
                             indication = null,
@@ -539,19 +489,19 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                             imageVector = Icons.Default.Save,
                             contentDescription = null,
                             tint = Color.White,
-                            modifier = Modifier.size(22.dp)
+                            modifier = Modifier.size(20.dp)
                         )
-                        Spacer(modifier = Modifier.width(10.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = stringResource(R.string.save_settings),
-                            fontWeight = FontWeight.ExtraBold,
+                            fontWeight = FontWeight.Bold,
                             color = Color.White,
-                            fontSize = 16.sp
+                            fontSize = 15.sp
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }

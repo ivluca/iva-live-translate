@@ -39,7 +39,7 @@ class TransparentCaptureActivity : ComponentActivity() {
         if (isGranted) {
             requestScreenCapture()
         } else {
-            Toast.makeText(this, "Audio permission is required for dubbing", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Audio permission is required for live translate", Toast.LENGTH_SHORT).show()
             finish()
         }
     }

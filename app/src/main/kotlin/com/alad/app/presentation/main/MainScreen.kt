@@ -34,11 +34,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
@@ -50,7 +46,6 @@ import androidx.compose.ui.window.Dialog
 import com.alad.app.R
 import com.alad.app.ui.theme.*
 import kotlin.math.abs
-import kotlin.math.exp
 import kotlin.math.sin
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,81 +73,7 @@ fun MainScreen(
 
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
-    var showHelpDialog by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
-
-    if (showHelpDialog) {
-        Dialog(onDismissRequest = { showHelpDialog = false }) {
-            GlassCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                shape = RoundedCornerShape(24.dp),
-                backgroundColor = Color(0xFF10192C),
-                borderColor = NeonCyan,
-                borderAlpha = 0.35f
-            ) {
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(52.dp)
-                            .clip(CircleShape)
-                            .background(NeonCyan.copy(alpha = 0.15f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Info,
-                            contentDescription = null,
-                            tint = NeonCyan,
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Text(
-                        text = stringResource(R.string.help_title),
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Text(
-                        text = stringResource(R.string.help_content),
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            color = TextSecondary,
-                            lineHeight = 22.sp
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    Button(
-                        onClick = { showHelpDialog = false },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(48.dp),
-                        shape = RoundedCornerShape(14.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = NeonCyan
-                        )
-                    ) {
-                        Text(
-                            text = stringResource(R.string.close),
-                            fontWeight = FontWeight.Bold,
-                            color = DeepSpace
-                        )
-                    }
-                }
-            }
-        }
-    }
 
     AmbientBackground {
         Scaffold(
@@ -161,7 +82,7 @@ fun MainScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .statusBarsPadding()
-                        .padding(horizontal = 20.dp, vertical = 12.dp),
+                        .padding(horizontal = 20.dp, vertical = 14.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -170,27 +91,16 @@ fun MainScreen(
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(40.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(Color.White)
-                                .border(
-                                    BorderStroke(
-                                        1.5.dp,
-                                        Brush.linearGradient(
-                                            listOf(
-                                                NeonCyan.copy(alpha = 0.8f),
-                                                NeonPurple.copy(alpha = 0.5f)
-                                            )
-                                        )
-                                    ),
-                                    shape = RoundedCornerShape(12.dp)
-                                )
-                                .padding(4.dp),
+                                .size(38.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(CardBackgroundElevated)
+                                .border(BorderStroke(1.dp, CardBorderSubtle), RoundedCornerShape(8.dp))
+                                .padding(5.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Image(
-                                painter = painterResource(id = R.mipmap.ic_launcher),
-                                contentDescription = "ALAD Logo",
+                                painter = painterResource(id = R.drawable.app_logo),
+                                contentDescription = "IVA Logo",
                                 modifier = Modifier.fillMaxSize()
                             )
                         }
@@ -199,36 +109,30 @@ fun MainScreen(
 
                         Column {
                             Text(
-                                text = "ALAD",
-                                fontWeight = FontWeight.ExtraBold,
-                                color = Color.White,
-                                fontSize = 20.sp,
-                                letterSpacing = 1.sp
+                                text = "IVA",
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary,
+                                fontSize = 18.sp,
+                                letterSpacing = 0.5.sp
                             )
                             Text(
-                                text = "AI Live Audio Dubbing",
-                                color = NeonCyan.copy(alpha = 0.85f),
+                                text = "Live Translate Audio",
+                                color = TextMuted,
                                 fontSize = 11.sp,
-                                fontWeight = FontWeight.Medium
+                                fontWeight = FontWeight.Normal
                             )
                         }
                     }
 
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        GlassIconButton(
-                            icon = Icons.Default.Info,
-                            contentDescription = "Help",
-                            onClick = { showHelpDialog = true },
-                            tint = NeonCyan
-                        )
 
                         GlassIconButton(
                             icon = Icons.Default.Settings,
                             contentDescription = "Settings",
                             onClick = onNavigateToSettings,
-                            tint = Color.White
+                            tint = TextSecondary
                         )
                     }
                 }
@@ -242,7 +146,7 @@ fun MainScreen(
                     .verticalScroll(scrollState)
                     .padding(horizontal = 20.dp, vertical = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
 
                 // 1. Status Indicator
@@ -258,11 +162,13 @@ fun MainScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // 2. Animated Audio Waveform
-                AnimatedWaveform(
+                // 2. Audio Spectrum Visualizer
+                AnimatedAudioBarsVisualizer(
                     isConnected = isConnected,
                     amplitude = amplitude,
-                    modifier = Modifier.padding(vertical = 4.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
                 )
 
                 // 3. Live Dual Subtitles Banner
@@ -273,9 +179,8 @@ fun MainScreen(
                 ) {
                     GlassCard(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(20.dp),
-                        borderColor = NeonCyan,
-                        borderAlpha = 0.35f
+                        shape = RoundedCornerShape(10.dp),
+                        borderColor = CardBorderSubtle
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Row(
@@ -286,28 +191,28 @@ fun MainScreen(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Box(
                                         modifier = Modifier
-                                            .size(7.dp)
+                                            .size(6.dp)
                                             .clip(CircleShape)
-                                            .background(NeonCyan)
+                                            .background(StatusActive)
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
                                         text = stringResource(R.string.live_subtitles).uppercase(),
-                                        color = NeonCyan,
+                                        color = StatusActive,
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.Bold,
-                                        letterSpacing = 1.sp
+                                        letterSpacing = 0.5.sp
                                     )
                                 }
 
                                 Text(
                                     text = "$selectedVoice • $selectedMode",
-                                    color = TextSecondary,
+                                    color = TextMuted,
                                     fontSize = 11.sp
                                 )
                             }
 
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(10.dp))
 
                             if (showDualSubtitles && liveSourceSubtitleText.isNotEmpty()) {
                                 Text(
@@ -317,13 +222,13 @@ fun MainScreen(
                                     lineHeight = 18.sp,
                                     fontWeight = FontWeight.Normal
                                 )
-                                Spacer(modifier = Modifier.height(4.dp))
+                                Spacer(modifier = Modifier.height(6.dp))
                             }
 
                             if (liveSubtitleText.isNotEmpty()) {
                                 Text(
                                     text = liveSubtitleText,
-                                    color = Color.White,
+                                    color = TextPrimary,
                                     fontSize = 15.sp,
                                     lineHeight = 22.sp,
                                     fontWeight = FontWeight.SemiBold
@@ -333,10 +238,9 @@ fun MainScreen(
                     }
                 }
 
-                // 4. Target Language & Dialect Selection Bento Card
+                // 4. Target Language & Dialect Selection Card
                 var langExpanded by remember { mutableStateOf(false) }
                 var dialectExpanded by remember { mutableStateOf(false) }
-                var searchQuery by remember { mutableStateOf("") }
                 val displayLang = supportedLanguages.find { it.first == targetLang }?.second ?: targetLang
 
                 val availableDialects = supportedDialects[targetLang.split("-")[0]] ?: emptyList()
@@ -345,10 +249,10 @@ fun MainScreen(
 
                 GlassCard(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(22.dp)
+                    shape = RoundedCornerShape(10.dp)
                 ) {
                     Column(
-                        modifier = Modifier.padding(18.dp)
+                        modifier = Modifier.padding(16.dp)
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -357,20 +261,20 @@ fun MainScreen(
                         ) {
                             Text(
                                 text = stringResource(R.string.target_dubbing_language),
-                                color = TextSecondary,
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Medium
+                                color = TextPrimary,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold
                             )
 
                             Box(
                                 modifier = Modifier
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(NeonCyan.copy(alpha = 0.12f))
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(BrandPrimarySubtle)
                                     .padding(horizontal = 8.dp, vertical = 2.dp)
                             ) {
                                 Text(
                                     text = targetLang.uppercase(),
-                                    color = NeonCyan,
+                                    color = BrandPrimary,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -379,57 +283,58 @@ fun MainScreen(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        // Language Dropdown
-                        ExposedDropdownMenuBox(
-                            expanded = langExpanded,
-                            onExpandedChange = { langExpanded = it }
-                        ) {
-                            OutlinedTextField(
-                                value = if (langExpanded) searchQuery else displayLang,
-                                onValueChange = { searchQuery = it },
-                                readOnly = !langExpanded,
-                                label = { Text(stringResource(R.string.select_language), color = TextSecondary) },
-                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = langExpanded) },
-                                shape = RoundedCornerShape(16.dp),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedContainerColor = Color(0x30FFFFFF),
-                                    unfocusedContainerColor = Color(0x15FFFFFF),
-                                    focusedBorderColor = NeonCyan,
-                                    unfocusedBorderColor = Color.White.copy(alpha = 0.15f),
-                                    focusedTextColor = Color.White,
-                                    unfocusedTextColor = Color.White
-                                ),
+                        // Language Select Box (No keyboard, clean selector)
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            Row(
                                 modifier = Modifier
-                                    .menuAnchor()
                                     .fillMaxWidth()
-                            )
-
-                            ExposedDropdownMenu(
-                                expanded = langExpanded,
-                                onDismissRequest = {
-                                    langExpanded = false
-                                    searchQuery = ""
-                                },
-                                modifier = Modifier
-                                    .background(Color(0xFF131D31))
-                                    .border(1.dp, Color.White.copy(alpha = 0.15f), RoundedCornerShape(12.dp))
+                                    .height(50.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(CardBackgroundElevated)
+                                    .border(
+                                        BorderStroke(
+                                            1.dp,
+                                            if (langExpanded) BrandPrimary else CardBorderSubtle
+                                        ),
+                                        RoundedCornerShape(8.dp)
+                                    )
+                                    .clickable { langExpanded = !langExpanded }
+                                    .padding(horizontal = 14.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                val filtered = supportedLanguages.filter {
-                                    it.second.contains(searchQuery, ignoreCase = true)
-                                }
-                                filtered.forEach { (code, name) ->
+                                Text(
+                                    text = displayLang,
+                                    color = TextPrimary,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Icon(
+                                    imageVector = if (langExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                                    contentDescription = null,
+                                    tint = if (langExpanded) BrandPrimary else TextMuted
+                                )
+                            }
+
+                            DropdownMenu(
+                                expanded = langExpanded,
+                                onDismissRequest = { langExpanded = false },
+                                modifier = Modifier
+                                    .background(CardBackgroundElevated)
+                                    .border(1.dp, CardBorderSubtle, RoundedCornerShape(8.dp))
+                            ) {
+                                supportedLanguages.forEach { (code, name) ->
                                     DropdownMenuItem(
                                         text = {
                                             Text(
                                                 name,
-                                                color = if (code == targetLang) NeonCyan else Color.White,
+                                                color = if (code == targetLang) BrandPrimary else TextPrimary,
                                                 fontWeight = if (code == targetLang) FontWeight.Bold else FontWeight.Normal
                                             )
                                         },
                                         onClick = {
                                             viewModel.updateTargetLang(code)
                                             langExpanded = false
-                                            searchQuery = ""
                                         }
                                     )
                                 }
@@ -449,43 +354,51 @@ fun MainScreen(
 
                             Spacer(modifier = Modifier.height(6.dp))
 
-                            ExposedDropdownMenuBox(
-                                expanded = dialectExpanded,
-                                onExpandedChange = { dialectExpanded = it }
-                            ) {
-                                OutlinedTextField(
-                                    value = displayDialect,
-                                    onValueChange = {},
-                                    readOnly = true,
-                                    label = { Text(stringResource(R.string.select_dialect), color = TextSecondary) },
-                                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dialectExpanded) },
-                                    shape = RoundedCornerShape(16.dp),
-                                    colors = OutlinedTextFieldDefaults.colors(
-                                        focusedContainerColor = Color(0x25FFFFFF),
-                                        unfocusedContainerColor = Color(0x12FFFFFF),
-                                        focusedBorderColor = NeonPurple,
-                                        unfocusedBorderColor = Color.White.copy(alpha = 0.15f),
-                                        focusedTextColor = Color.White,
-                                        unfocusedTextColor = Color.White
-                                    ),
+                            Box(modifier = Modifier.fillMaxWidth()) {
+                                Row(
                                     modifier = Modifier
-                                        .menuAnchor()
                                         .fillMaxWidth()
-                                )
+                                        .height(50.dp)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(CardBackgroundElevated)
+                                        .border(
+                                            BorderStroke(
+                                                1.dp,
+                                                if (dialectExpanded) BrandPrimary else CardBorderSubtle
+                                            ),
+                                            RoundedCornerShape(8.dp)
+                                        )
+                                        .clickable { dialectExpanded = !dialectExpanded }
+                                        .padding(horizontal = 14.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        text = displayDialect,
+                                        color = TextPrimary,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                    Icon(
+                                        imageVector = if (dialectExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                                        contentDescription = null,
+                                        tint = if (dialectExpanded) BrandPrimary else TextMuted
+                                    )
+                                }
 
-                                ExposedDropdownMenu(
+                                DropdownMenu(
                                     expanded = dialectExpanded,
                                     onDismissRequest = { dialectExpanded = false },
                                     modifier = Modifier
-                                        .background(Color(0xFF131D31))
-                                        .border(1.dp, Color.White.copy(alpha = 0.15f), RoundedCornerShape(12.dp))
+                                        .background(CardBackgroundElevated)
+                                        .border(1.dp, CardBorderSubtle, RoundedCornerShape(8.dp))
                                 ) {
                                     availableDialects.forEach { dialect ->
                                         DropdownMenuItem(
                                             text = {
                                                 Text(
                                                     dialect.displayName,
-                                                    color = if (dialect.code == targetDialect) NeonPurple else Color.White,
+                                                    color = if (dialect.code == targetDialect) BrandPrimary else TextPrimary,
                                                     fontWeight = if (dialect.code == targetDialect) FontWeight.Bold else FontWeight.Normal
                                                 )
                                             },
@@ -501,15 +414,13 @@ fun MainScreen(
                     }
                 }
 
-                // 5. Dual Audio Mixer Bento Card (Issue #6)
+                // 5. Dual Audio Mixer Card
                 GlassCard(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(22.dp),
-                    borderColor = NeonCyan,
-                    borderAlpha = 0.20f
+                    shape = RoundedCornerShape(10.dp)
                 ) {
                     Column(
-                        modifier = Modifier.padding(18.dp)
+                        modifier = Modifier.padding(16.dp)
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -518,15 +429,15 @@ fun MainScreen(
                             Icon(
                                 imageVector = Icons.Default.Tune,
                                 contentDescription = null,
-                                tint = NeonCyan,
-                                modifier = Modifier.size(20.dp)
+                                tint = BrandPrimary,
+                                modifier = Modifier.size(18.dp)
                             )
-                            Spacer(modifier = Modifier.width(10.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = stringResource(R.string.audio_mixer),
-                                color = Color.White,
+                                color = TextPrimary,
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 15.sp
+                                fontSize = 14.sp
                             )
                         }
 
@@ -548,7 +459,7 @@ fun MainScreen(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
                                     text = if (isDubbingMuted) "MUTED" else "${(dubbingVol * 100).toInt()}%",
-                                    color = if (isDubbingMuted) NeonCoral else NeonCyan,
+                                    color = if (isDubbingMuted) DangerRed else BrandPrimary,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -556,8 +467,8 @@ fun MainScreen(
                                 Box(
                                     modifier = Modifier
                                         .size(28.dp)
-                                        .clip(CircleShape)
-                                        .background(if (isDubbingMuted) NeonCoral.copy(alpha = 0.25f) else Color.White.copy(alpha = 0.08f))
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(if (isDubbingMuted) DangerRedSubtle else CardBackgroundElevated)
                                         .clickable {
                                             haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
                                             viewModel.toggleDubbingMute()
@@ -566,9 +477,9 @@ fun MainScreen(
                                 ) {
                                     Icon(
                                         imageVector = if (isDubbingMuted) Icons.AutoMirrored.Filled.VolumeOff else Icons.AutoMirrored.Filled.VolumeUp,
-                                        contentDescription = "Mute Dubbing",
-                                        tint = if (isDubbingMuted) NeonCoral else Color.White,
-                                        modifier = Modifier.size(15.dp)
+                                        contentDescription = "Mute AI Voice",
+                                        tint = if (isDubbingMuted) DangerRed else TextPrimary,
+                                        modifier = Modifier.size(14.dp)
                                     )
                                 }
                             }
@@ -579,14 +490,14 @@ fun MainScreen(
                             onValueChange = { viewModel.setDubbingVolume(it) },
                             valueRange = 0f..1f,
                             colors = SliderDefaults.colors(
-                                thumbColor = NeonCyan,
-                                activeTrackColor = NeonCyan,
-                                inactiveTrackColor = Color.White.copy(alpha = 0.15f)
+                                thumbColor = BrandPrimary,
+                                activeTrackColor = BrandPrimary,
+                                inactiveTrackColor = CardBorderSubtle
                             ),
                             modifier = Modifier.fillMaxWidth()
                         )
 
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(6.dp))
 
                         // B. Original Media Audio Volume Slider + Mute
                         Row(
@@ -604,7 +515,7 @@ fun MainScreen(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
                                     text = if (isOriginalMuted) "MUTED" else "${(originalVol * 100).toInt()}%",
-                                    color = if (isOriginalMuted) NeonCoral else NeonPurple,
+                                    color = if (isOriginalMuted) DangerRed else TextSecondary,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -612,8 +523,8 @@ fun MainScreen(
                                 Box(
                                     modifier = Modifier
                                         .size(28.dp)
-                                        .clip(CircleShape)
-                                        .background(if (isOriginalMuted) NeonCoral.copy(alpha = 0.25f) else Color.White.copy(alpha = 0.08f))
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(if (isOriginalMuted) DangerRedSubtle else CardBackgroundElevated)
                                         .clickable {
                                             haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
                                             viewModel.toggleOriginalMute()
@@ -623,8 +534,8 @@ fun MainScreen(
                                     Icon(
                                         imageVector = if (isOriginalMuted) Icons.AutoMirrored.Filled.VolumeOff else Icons.AutoMirrored.Filled.VolumeUp,
                                         contentDescription = "Mute Original Audio",
-                                        tint = if (isOriginalMuted) NeonCoral else Color.White,
-                                        modifier = Modifier.size(15.dp)
+                                        tint = if (isOriginalMuted) DangerRed else TextPrimary,
+                                        modifier = Modifier.size(14.dp)
                                     )
                                 }
                             }
@@ -635,9 +546,9 @@ fun MainScreen(
                             onValueChange = { viewModel.setOriginalVolumeRatio(it) },
                             valueRange = 0f..1f,
                             colors = SliderDefaults.colors(
-                                thumbColor = NeonPurple,
-                                activeTrackColor = NeonPurple,
-                                inactiveTrackColor = Color.White.copy(alpha = 0.15f)
+                                thumbColor = TextSecondary,
+                                activeTrackColor = TextSecondary,
+                                inactiveTrackColor = CardBorderSubtle
                             ),
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -648,7 +559,7 @@ fun MainScreen(
                 val isWidgetActive by com.alad.app.core.service.OverlayWidgetService.isWidgetActive.collectAsState()
                 GlassCard(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(22.dp),
+                    shape = RoundedCornerShape(10.dp),
                     onClick = {
                         if (!Settings.canDrawOverlays(context)) {
                             val intent = Intent(
@@ -669,16 +580,16 @@ fun MainScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(18.dp),
+                            .padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = stringResource(R.string.floating_widget),
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White,
-                                fontSize = 15.sp
+                                fontWeight = FontWeight.SemiBold,
+                                color = TextPrimary,
+                                fontSize = 14.sp
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
@@ -688,7 +599,7 @@ fun MainScreen(
                                     stringResource(R.string.grant_permission_widget)
                                 },
                                 fontSize = 12.sp,
-                                color = TextSecondary
+                                color = TextMuted
                             )
                         }
 
@@ -697,16 +608,16 @@ fun MainScreen(
                             onCheckedChange = null,
                             colors = SwitchDefaults.colors(
                                 checkedThumbColor = Color.White,
-                                checkedTrackColor = NeonCyan,
-                                uncheckedThumbColor = Color.Gray,
-                                uncheckedTrackColor = Color.White.copy(alpha = 0.1f)
+                                checkedTrackColor = BrandPrimary,
+                                uncheckedThumbColor = TextMuted,
+                                uncheckedTrackColor = CardBackgroundElevated
                             )
                         )
                     }
                 }
 
-                // 7. Start/Stop Dubbing Action Button
-                StartStopDubbingButton(
+                // 7. Start/Stop Translate Action Button
+                StartStopTranslateButton(
                     isConnected = isConnected,
                     onClick = {
                         if (isConnected) {
@@ -723,25 +634,28 @@ fun MainScreen(
     }
 }
 
+/**
+ * Clean Studio Audio Bars Visualizer.
+ * Displays 32 discrete rounded bars that smoothly animate with audio amplitude when connected.
+ */
 @Composable
-fun AnimatedWaveform(
+fun AnimatedAudioBarsVisualizer(
     isConnected: Boolean,
     amplitude: Float,
     modifier: Modifier = Modifier
 ) {
     val animatedAmplitude by animateFloatAsState(
-        targetValue = if (isConnected) amplitude.coerceIn(0.04f, 1f) else 0.03f,
-        animationSpec = tween(70, easing = LinearEasing),
+        targetValue = if (isConnected) amplitude.coerceIn(0.05f, 1f) else 0.03f,
+        animationSpec = tween(80, easing = LinearEasing),
         label = "amplitude"
     )
 
-    val infiniteTransition = rememberInfiniteTransition(label = "waveform")
-
+    val infiniteTransition = rememberInfiniteTransition(label = "audio_bars")
     val phase by infiniteTransition.animateFloat(
         initialValue = 0f,
-        targetValue = 2f * Math.PI.toFloat(),
+        targetValue = (2f * Math.PI).toFloat(),
         animationSpec = infiniteRepeatable(
-            animation = tween(2200, easing = LinearEasing),
+            animation = tween(1800, easing = LinearEasing),
             repeatMode = RepeatMode.Restart
         ),
         label = "phase"
@@ -750,93 +664,62 @@ fun AnimatedWaveform(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(115.dp),
+            .height(64.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(CardBackground)
+            .border(BorderStroke(1.dp, CardBorderSubtle), RoundedCornerShape(10.dp))
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         contentAlignment = Alignment.Center
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val width = size.width
-            val height = size.height
-            val centerY = height * 0.50f
+            val totalBars = 32
+            val spacing = 3.dp.toPx()
+            val availableWidth = size.width - (spacing * (totalBars - 1))
+            val barWidth = availableWidth / totalBars
+            val maxHeight = size.height - 4.dp.toPx()
+            val minHeight = 4.dp.toPx()
 
-            // 1. Draw glowing wave fill & wave stroke (matching Figma dashboard wave curves in reference image)
-            val wavePath = Path()
-            val fillPath = Path()
-            fillPath.moveTo(0f, height)
+            val barColor = if (isConnected) StatusActive else CardBorderSubtle
 
-            val stepCount = 55
-            val stepX = width / stepCount
+            for (i in 0 until totalBars) {
+                val normalizedIndex = i.toFloat() / (totalBars - 1)
+                // Curve weighting: center bars are taller
+                val centerWeight = sin(normalizedIndex * Math.PI).toFloat()
 
-            for (i in 0..stepCount) {
-                val x = i * stepX
-                val normalizedX = i.toFloat() / stepCount
-                // Bell curve windowing so wave attenuates gently near edges
-                val window = (sin(normalizedX * Math.PI).toFloat()).coerceIn(0.12f, 1f)
-
-                val wave1 = sin(phase + (normalizedX * 4.2f * Math.PI.toFloat())) * 0.65f
-                val wave2 = sin((phase * 1.4f) + (normalizedX * 6.5f * Math.PI.toFloat())) * 0.35f
-                val combinedWave = (wave1 + wave2) * window
-
-                val maxDisplacement = height * 0.36f * (0.15f + animatedAmplitude * 1.85f)
-                val y = centerY - (combinedWave * maxDisplacement).coerceIn(-height * 0.42f, height * 0.42f)
-
-                if (i == 0) {
-                    wavePath.moveTo(x, y)
-                    fillPath.lineTo(x, y)
+                val wave = if (isConnected) {
+                    val w1 = sin(phase + normalizedIndex * 4f).toFloat() * 0.5f
+                    val w2 = sin((phase * 1.5f) + normalizedIndex * 6f).toFloat() * 0.5f
+                    (w1 + w2) * 0.5f
                 } else {
-                    wavePath.lineTo(x, y)
-                    fillPath.lineTo(x, y)
+                    0f
                 }
-            }
 
-            fillPath.lineTo(width, height)
-            fillPath.close()
+                val currentHeight = if (isConnected) {
+                    val h = minHeight + (maxHeight - minHeight) * centerWeight * (animatedAmplitude * 0.7f + abs(wave) * 0.3f)
+                    h.coerceIn(minHeight, maxHeight)
+                } else {
+                    minHeight
+                }
 
-            // Area Gradient Fill under wave
-            val fillBrush = if (isConnected) {
-                Brush.verticalGradient(
-                    colors = listOf(
-                        NeonCyan.copy(alpha = 0.32f),
-                        NeonBlue.copy(alpha = 0.12f),
-                        Color.Transparent
-                    ),
-                    startY = centerY - height * 0.4f,
-                    endY = height
-                )
-            } else {
-                Brush.verticalGradient(
-                    colors = listOf(
-                        Color.White.copy(alpha = 0.08f),
-                        Color.Transparent
-                    ),
-                    startY = centerY - height * 0.2f,
-                    endY = height
+                val x = i * (barWidth + spacing)
+                val y = (size.height - currentHeight) / 2f
+
+                drawRoundRect(
+                    color = barColor,
+                    topLeft = Offset(x, y),
+                    size = Size(barWidth, currentHeight),
+                    cornerRadius = CornerRadius(2.dp.toPx(), 2.dp.toPx())
                 )
             }
-
-            drawPath(path = fillPath, brush = fillBrush)
-
-            // Glowing Wave Crest Stroke
-            val strokeBrush = if (isConnected) {
-                Brush.horizontalGradient(
-                    colors = listOf(NeonCyan, NeonBlue, NeonPurple)
-                )
-            } else {
-                Brush.horizontalGradient(
-                    colors = listOf(Color.White.copy(alpha = 0.35f), Color.White.copy(alpha = 0.12f))
-                )
-            }
-
-            drawPath(
-                path = wavePath,
-                brush = strokeBrush,
-                style = Stroke(width = if (isConnected) 3.5.dp.toPx() else 1.8.dp.toPx(), cap = StrokeCap.Round)
-            )
         }
     }
 }
 
+/**
+ * Modern tactile action button for Start/Stop Translate.
+ */
 @Composable
-fun StartStopDubbingButton(
+fun StartStopTranslateButton(
     isConnected: Boolean,
     onClick: () -> Unit
 ) {
@@ -845,38 +728,20 @@ fun StartStopDubbingButton(
     val haptic = LocalHapticFeedback.current
 
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.97f else 1.0f,
+        targetValue = if (isPressed) 0.98f else 1.0f,
         animationSpec = spring(stiffness = Spring.StiffnessMedium),
         label = "scale"
     )
 
-    val gradientColors = if (isConnected) {
-        listOf(NeonRose, NeonCoral, Color(0xFFE11D48))
-    } else {
-        listOf(NeonCyan, NeonBlue, NeonViolet)
-    }
+    val buttonColor = if (isConnected) DangerRed else BrandPrimary
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(64.dp)
+            .height(50.dp)
             .scale(scale)
-            .clip(RoundedCornerShape(32.dp))
-            .background(
-                Brush.horizontalGradient(gradientColors)
-            )
-            .border(
-                BorderStroke(
-                    1.2.dp,
-                    Brush.linearGradient(
-                        listOf(
-                            Color.White.copy(alpha = 0.70f),
-                            Color.White.copy(alpha = 0.15f)
-                        )
-                    )
-                ),
-                shape = RoundedCornerShape(32.dp)
-            )
+            .clip(RoundedCornerShape(8.dp))
+            .background(buttonColor)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
@@ -887,24 +752,6 @@ fun StartStopDubbingButton(
             ),
         contentAlignment = Alignment.Center
     ) {
-        // Specular top highlight line inside pill
-        Box(
-            modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .height(1.dp)
-                .align(Alignment.TopCenter)
-                .padding(top = 1.dp)
-                .background(
-                    Brush.horizontalGradient(
-                        listOf(
-                            Color.Transparent,
-                            Color.White.copy(alpha = 0.6f),
-                            Color.Transparent
-                        )
-                    )
-                )
-        )
-
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
@@ -913,18 +760,18 @@ fun StartStopDubbingButton(
                 imageVector = if (isConnected) Icons.Default.Stop else Icons.Default.PlayArrow,
                 contentDescription = null,
                 tint = Color.White,
-                modifier = Modifier.size(26.dp)
+                modifier = Modifier.size(22.dp)
             )
 
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
             Text(
                 text = if (isConnected) stringResource(R.string.btn_stop) else stringResource(R.string.btn_start),
                 style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.ExtraBold,
+                    fontWeight = FontWeight.Bold,
                     color = Color.White,
                     letterSpacing = 0.5.sp,
-                    fontSize = 17.5.sp
+                    fontSize = 15.sp
                 )
             )
         }

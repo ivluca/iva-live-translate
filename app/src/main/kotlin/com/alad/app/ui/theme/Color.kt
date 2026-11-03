@@ -2,47 +2,60 @@ package com.alad.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Core Brand & Background
-val DeepSpace = Color(0xFF070B12)
-val DeepSpaceElevated = Color(0xFF0D1424)
-val SurfaceDark = Color(0xFF131D31)
-val SurfaceElevated = Color(0xFF18243C)
+// Modern Clean Dark Theme Tokens (Professional Audio Tool Aesthetic)
+val CanvasBackground = Color(0xFF0C0F17)
+val CardBackground = Color(0xFF151922)
+val CardBackgroundElevated = Color(0xFF1D222E)
+val CardBorderSubtle = Color(0xFF242A38)
+val CardBorderFocused = Color(0xFFE72234)
 
-val PrimaryBlue = Color(0xFF38BDF8)
-val PrimaryPurple = Color(0xFFA855F7)
-val AccentTeal = Color(0xFF14B8A6)
-val ErrorRed = Color(0xFFEF4444)
+// Professional Brand & Accent Colors (#e72234 primary)
+val BrandPrimary = Color(0xFFE72234)        // Signature Crimson Red
+val BrandPrimaryLight = Color(0xFFFF4D5E)
+val BrandPrimaryHover = Color(0xFFC81425)
+val BrandPrimarySubtle = Color(0x24E72234)
+val StatusActive = Color(0xFF10B981)        // Clean Emerald Green
+val StatusActiveSubtle = Color(0x1F10B981)
+val StatusIdle = Color(0xFF64748B)          // Neutral Slate
+val DangerRed = Color(0xFFDC2626)           // Warning / Stop Action
+val DangerRedSubtle = Color(0x24DC2626)
 
-// Typography & Content
+// Typography & Content Colors
 val TextPrimary = Color(0xFFF8FAFC)
 val TextSecondary = Color(0xFF94A3B8)
 val TextMuted = Color(0xFF64748B)
 
-// Frosted Glass & Bento Surfaces
-val GlassSurfaceDark = Color(0x750E172A)
-val GlassSurfaceLight = Color(0x18FFFFFF)
-val GlassBorderHighlight = Color(0x3538BDF8)
-val GlassBorderSubtle = Color(0x18FFFFFF)
+// Preserved Legacy Design Tokens for Floating Overlay & Backward Compatibility
+val DeepSpace = CanvasBackground
+val DeepSpaceElevated = CardBackground
+val SurfaceDark = CardBackgroundElevated
+val SurfaceElevated = Color(0xFF222838)
 
-// Modern AI Aura & Accents
-val NeonCyan = Color(0xFF00F5FF)
-val NeonBlue = Color(0xFF38BDF8)
-val NeonPurple = Color(0xFFA855F7)
+val PrimaryBlue = BrandPrimary
+val PrimaryPurple = Color(0xFF8B5CF6)
+val AccentTeal = StatusActive
+val ErrorRed = DangerRed
+
+val GlassSurfaceDark = CardBackground
+val GlassSurfaceLight = Color(0x0DFFFFFF)
+val GlassBorderHighlight = CardBorderSubtle
+val GlassBorderSubtle = Color(0x12FFFFFF)
+
+val NeonCyan = Color(0xFF38BDF8)
+val NeonBlue = Color(0xFF3B82F6)
+val NeonPurple = Color(0xFF8B5CF6)
 val NeonViolet = Color(0xFF6366F1)
-val NeonEmerald = Color(0xFF10B981)
-val NeonCoral = Color(0xFFFF5252)
+val NeonEmerald = StatusActive
+val NeonCoral = DangerRed
 val NeonRose = Color(0xFFF43F5E)
 
-// Sliders and Audio Mixer Colors
-val MixerDubbingTrack = Color(0xFF00F5FF)
-val MixerOriginalTrack = Color(0xFFA855F7)
-val MixerMutedTrack = Color(0xFF475569)
+val MixerDubbingTrack = BrandPrimary
+val MixerOriginalTrack = Color(0xFF8B5CF6)
+val MixerMutedTrack = Color(0xFF334155)
 
-// Liquid Glass Design Tokens (matching high-end Figma Dashboard & iOS Vision glass)
-val LiquidGlassSurface = Color(0x38121E36)
-val LiquidGlassSurfaceElevated = Color(0x55172644)
-val LiquidGlassPill = Color(0x261B2B48)
-val LiquidGlassBorder = Color(0x33FFFFFF)
-val LiquidGlassHighlight = Color(0x55FFFFFF)
-val LiquidCyanSheen = Color(0x3038BDF8)
-
+val LiquidGlassSurface = CardBackground
+val LiquidGlassSurfaceElevated = CardBackgroundElevated
+val LiquidGlassPill = Color(0xFF1E2433)
+val LiquidGlassBorder = CardBorderSubtle
+val LiquidGlassHighlight = Color(0x1FFFFFFF)
+val LiquidCyanSheen = Color(0x1A3B82F6)

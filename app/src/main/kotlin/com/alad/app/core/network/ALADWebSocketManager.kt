@@ -154,7 +154,7 @@ class ALADWebSocketManager(private val client: OkHttpClient) {
 
         val dialectInstruction = com.alad.app.presentation.main.supportedDialects[targetLangCode]
             ?.find { it.code.equals(targetDialect, ignoreCase = true) }
-            ?.promptInstruction ?: if (targetDialect.isNotEmpty()) "Speak and translate in $targetDialect dialect" else ""
+            ?.promptInstruction ?: com.alad.app.presentation.main.supportedDialects[targetLangCode]?.firstOrNull()?.promptInstruction ?: if (targetDialect.isNotEmpty()) "Speak and translate in $targetDialect dialect" else ""
 
         val setupPayload = JSONObject().apply {
             put("setup", JSONObject().apply {
@@ -179,7 +179,7 @@ class ALADWebSocketManager(private val client: OkHttpClient) {
                 if (dialectInstruction.isNotEmpty()) {
                     put("systemInstruction", JSONObject().apply {
                         put("parts", JSONArray().put(JSONObject().apply {
-                            put("text", "You are an expert real-time AI live audio dubber. $dialectInstruction. Maintain natural pacing and high clarity.")
+                            put("text", "You are an expert real-time AI live audio translator. $dialectInstruction. Maintain natural pacing and high clarity.")
                         }))
                     })
                 }

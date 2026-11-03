@@ -313,7 +313,7 @@ fun FloatingControllerCapsule(
                 } else {
                     Icon(
                         imageVector = Icons.Default.PlayArrow,
-                        contentDescription = "Start Dubbing",
+                        contentDescription = "Start Translate",
                         tint = Color.White,
                         modifier = Modifier.size(17.dp)
                     )
@@ -501,7 +501,7 @@ fun FloatingCinemaSubtitles(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "ALAD SUBTITLES",
+                        text = "IVA SUBTITLES",
                         color = NeonCyan,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.ExtraBold,

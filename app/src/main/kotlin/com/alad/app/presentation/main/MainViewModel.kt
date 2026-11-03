@@ -40,7 +40,7 @@ class MainViewModel(private val repository: UserPreferencesRepository) : ViewMod
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "vi")
 
     val targetDialect: StateFlow<String> = repository.targetDialectFlow
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "vi-VN-N")
 
     val dubbingMode: StateFlow<String> = repository.dubbingModeFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UserPreferencesRepository.MODE_HYBRID)
@@ -86,7 +86,7 @@ class MainViewModel(private val repository: UserPreferencesRepository) : ViewMod
             try {
                 repository.updateTargetLang(lang)
                 // Clear dialect when language changes to standard
-                repository.updateTargetDialect("")
+                repository.updateTargetDialect(if (lang == "vi") "vi-VN-N" else "")
             } catch (e: Exception) {
                 Log.e("MainViewModel", "Failed to update target language", e)
             }

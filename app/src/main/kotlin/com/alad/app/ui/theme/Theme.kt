@@ -11,17 +11,17 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = NeonCyan,
-    secondary = NeonPurple,
-    tertiary = AccentTeal,
-    background = DeepSpace,
-    surface = GlassSurfaceDark,
-    onPrimary = Color.Black,
-    onSecondary = TextPrimary,
-    onTertiary = TextPrimary,
+    primary = BrandPrimary,
+    secondary = BrandPrimaryLight,
+    tertiary = StatusActive,
+    background = CanvasBackground,
+    surface = CardBackground,
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onTertiary = Color.White,
     onBackground = TextPrimary,
     onSurface = TextPrimary,
-    error = NeonCoral
+    error = DangerRed
 )
 
 @Composable
@@ -35,8 +35,10 @@ fun ALADTheme(
             val context = view.context
             if (context is Activity) {
                 val window = context.window
-                window.statusBarColor = colorScheme.background.toArgb()
+                window.statusBarColor = CanvasBackground.toArgb()
+                window.navigationBarColor = CanvasBackground.toArgb()
                 WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+                WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = false
             }
         }
     }
