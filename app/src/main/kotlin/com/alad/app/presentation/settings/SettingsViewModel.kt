@@ -26,7 +26,7 @@ class SettingsViewModel(private val repository: UserPreferencesRepository) : Vie
     private val _originalVolume = MutableStateFlow(0.30f)
     val originalVolume: StateFlow<Float> = _originalVolume.asStateFlow()
 
-    private val _voicePersona = MutableStateFlow("Puck")
+    private val _voicePersona = MutableStateFlow("Zephyr")
     val voicePersona: StateFlow<String> = _voicePersona.asStateFlow()
 
     private val _dubbingMode = MutableStateFlow(UserPreferencesRepository.MODE_HYBRID)

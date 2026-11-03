@@ -21,7 +21,7 @@ class ALADWebSocketManager(private val client: OkHttpClient) {
     }
 
     private var isSetupComplete = false
-    private var currentVoicePersona = "Puck"
+    private var currentVoicePersona = "Zephyr"
     private var currentDubbingMode = "HYBRID"
     private var currentTargetDialect = ""
 
@@ -29,7 +29,7 @@ class ALADWebSocketManager(private val client: OkHttpClient) {
         apiKey: String,
         sourceLang: String,
         targetLang: String,
-        voicePersona: String = "Puck",
+        voicePersona: String = "Zephyr",
         dubbingMode: String = "HYBRID",
         targetDialect: String = ""
     ) {

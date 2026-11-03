@@ -39,7 +39,7 @@ Sử dụng Jetpack DataStore Preferences để lưu trữ bất đồng bộ c�
 - `GEMINI_API_KEY`: Khóa API Google Gemini Live.
 - `TARGET_LANG`: Mã ngôn ngữ đích đã chọn (`"vi"`, `"en"`, `"ja"`). Mặc định: `"vi"`.
 - `TARGET_DIALECT`: Mã ngữ điệu hoặc phương ngữ đã chọn (ví dụ `"vi-VN-N"`, `"en-US"`). Mặc định: `"vi-VN-N"`.
-- `VOICE_PERSONA`: Chất giọng AI (`Aoede`, `Puck`, `Charon`, `Kore`, `Fenrir`).
+- `VOICE_PERSONA`: Chất giọng AI (`Zephyr`, `Achernar`, `Fenrir`, `Leda`). Mặc định: `"Zephyr"`.
 - `DUBBING_MODE`: Chế độ thuyết minh (`HYBRID`, `AUDIO_ONLY`, `SUBTITLE_ONLY`).
 - `DUBBING_VOLUME` & `ORIGINAL_VOLUME`: Mức âm lượng mặc định của hai kênh.
 - `SHOW_DUAL_SUBTITLES`: Tùy chọn hiển thị đồng thời cả phụ đề gốc và phụ đề dịch trên Overlay.

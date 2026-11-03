@@ -37,7 +37,7 @@ class AudioPlayerManager(private val context: Context) {
 
     @Volatile private var currentVolume: Float = 1.0f
     @Volatile private var isDubbingMuted: Boolean = false
-    @Volatile private var currentVoicePersona: String = "Puck"
+    @Volatile private var currentVoicePersona: String = "Zephyr"
 
     fun setVoicePersona(persona: String) {
         currentVoicePersona = persona
@@ -122,28 +122,24 @@ class AudioPlayerManager(private val context: Context) {
 
                         // 1. Voice Persona Character Filtering (DSP timbre shaping)
                         sample = when (persona) {
-                            "Charon" -> {
-                                // Deep & Resonant: warm low-end boost and smooth high roll-off
-                                val filtered = (sample * 0.70f) + (prevSample * 0.30f)
-                                filtered * 1.08f
-                            }
-                            "Puck" -> {
-                                // Energetic & Crisp: presence high-shelf boost
+                            "Zephyr" -> {
+                                // Bright & Clear: presence high-shelf boost
                                 val diff = sample - prevSample
-                                (sample * 0.85f) + (diff * 0.28f)
+                                (sample * 0.86f) + (diff * 0.22f)
                             }
-                            "Aoede" -> {
-                                // Melodic & Warm: balanced harmonic warmth
-                                (sample * 0.82f) + (prevSample * 0.18f)
+                            "Achernar" -> {
+                                // Soft & Gentle: warm smooth roll-off
+                                (sample * 0.80f) + (prevSample * 0.20f)
                             }
                             "Fenrir" -> {
                                 // Authoritative & Bold: firm dynamic presence
                                 val diff = sample - prevSample
                                 (sample * 0.90f) + (diff * 0.18f)
                             }
-                            "Kore" -> {
-                                // Gentle & Calm: gentle softening
-                                (sample * 0.75f) + (prevSample * 0.25f)
+                            "Leda" -> {
+                                // Youthful & Crisp: natural presence
+                                val diff = sample - prevSample
+                                (sample * 0.88f) + (diff * 0.20f)
                             }
                             else -> sample
                         }

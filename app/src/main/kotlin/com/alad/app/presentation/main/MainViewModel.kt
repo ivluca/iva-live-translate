@@ -46,7 +46,7 @@ class MainViewModel(private val repository: UserPreferencesRepository) : ViewMod
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UserPreferencesRepository.MODE_HYBRID)
 
     val voicePersona: StateFlow<String> = repository.voicePersonaFlow
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "Puck")
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "Zephyr")
 
     init {
         viewModelScope.launch(exceptionHandler) {

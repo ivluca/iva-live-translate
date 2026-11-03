@@ -207,7 +207,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                     }
                 }
 
-                // 2. AI Voice Persona Selection Card
+                // 2. AI Voice Persona Selection Card (2x2 Grid)
                 GlassCard(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp)
@@ -231,74 +231,53 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
 
                             Spacer(modifier = Modifier.width(12.dp))
 
-                            Column {
-                                Text(
-                                    text = stringResource(R.string.voice_persona),
-                                    fontWeight = FontWeight.Bold,
-                                    color = TextPrimary,
-                                    fontSize = 15.sp
-                                )
-                                Text(
-                                    text = stringResource(R.string.voice_persona_desc),
-                                    color = TextMuted,
-                                    fontSize = 12.sp
-                                )
-                            }
+                            Text(
+                                text = stringResource(R.string.voice_persona),
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary,
+                                fontSize = 15.sp
+                            )
                         }
 
                         Spacer(modifier = Modifier.height(14.dp))
 
-                        val voices = listOf(
-                            Triple("Puck", stringResource(R.string.voice_puck), "Energetic"),
-                            Triple("Charon", stringResource(R.string.voice_charon), "Deep"),
-                            Triple("Aoede", stringResource(R.string.voice_aoede), "Melodic"),
-                            Triple("Fenrir", stringResource(R.string.voice_fenrir), "Authoritative"),
-                            Triple("Kore", stringResource(R.string.voice_kore), "Calm")
+                        val voiceRows = listOf(
+                            listOf("Zephyr", "Achernar"),
+                            listOf("Fenrir", "Leda")
                         )
 
-                        voices.forEach { (voiceId, voiceLabel, badge) ->
-                            val isSelected = selectedVoice == voiceId
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 3.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(if (isSelected) BrandPrimarySubtle else CardBackgroundElevated)
-                                    .border(
-                                        BorderStroke(
-                                            1.dp,
-                                            if (isSelected) BrandPrimary else CardBorderSubtle
-                                        ),
-                                        shape = RoundedCornerShape(8.dp)
-                                    )
-                                    .clickable { viewModel.updateVoicePersona(voiceId) }
-                                    .padding(horizontal = 14.dp, vertical = 11.dp)
-                            ) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            voiceRows.forEach { rowVoices ->
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                                 ) {
-                                    Text(
-                                        text = voiceLabel,
-                                        color = if (isSelected) TextPrimary else TextSecondary,
-                                        fontSize = 13.5.sp,
-                                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                                        modifier = Modifier.weight(1f)
-                                    )
-
-                                    if (isSelected) {
+                                    rowVoices.forEach { voiceId ->
+                                        val isSelected = selectedVoice == voiceId
                                         Box(
                                             modifier = Modifier
-                                                .clip(RoundedCornerShape(4.dp))
-                                                .background(BrandPrimary)
-                                                .padding(horizontal = 7.dp, vertical = 2.dp)
+                                                .weight(1f)
+                                                .height(48.dp)
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .background(if (isSelected) BrandPrimarySubtle else CardBackgroundElevated)
+                                                .border(
+                                                    BorderStroke(
+                                                        1.dp,
+                                                        if (isSelected) BrandPrimary else CardBorderSubtle
+                                                    ),
+                                                    shape = RoundedCornerShape(8.dp)
+                                                )
+                                                .clickable { viewModel.updateVoicePersona(voiceId) },
+                                            contentAlignment = Alignment.Center
                                         ) {
                                             Text(
-                                                text = badge.uppercase(),
-                                                color = Color.White,
-                                                fontSize = 10.sp,
-                                                fontWeight = FontWeight.Bold
+                                                text = voiceId,
+                                                color = if (isSelected) BrandPrimary else TextSecondary,
+                                                fontSize = 14.sp,
+                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                                             )
                                         }
                                     }
