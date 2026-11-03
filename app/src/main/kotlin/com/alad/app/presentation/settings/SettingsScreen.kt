@@ -162,15 +162,6 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        Text(
-                            text = stringResource(R.string.api_key_guide),
-                            color = TextSecondary,
-                            fontSize = 12.5.sp,
-                            lineHeight = 18.sp
-                        )
-
-                        Spacer(modifier = Modifier.height(14.dp))
-
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()

@@ -46,7 +46,7 @@
     <string name="audio_mixer">Dual Audio Mixer</string>
     <string name="dubbed_voice_volume">AI Translated Voice</string>
     <string name="original_media_volume">Original Media Audio</string>
-    <string name="target_dialect">Regional Accent / Dialect</string>
+    <string name="target_dialect">Regional Accent</string>
     <string name="select_dialect">Select Dialect (Optional)</string>
     <string name="standard_dialect">Standard / Default</string>
     <string name="dual_subtitles">Dual Live Subtitles</string>

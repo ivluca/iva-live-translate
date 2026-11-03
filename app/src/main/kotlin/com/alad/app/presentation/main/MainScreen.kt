@@ -284,7 +284,8 @@ fun MainScreen(
                         Spacer(modifier = Modifier.height(12.dp))
 
                         // Language Select Box (No keyboard, clean selector)
-                        Box(modifier = Modifier.fillMaxWidth()) {
+                        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                            val menuWidth = maxWidth
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -320,6 +321,7 @@ fun MainScreen(
                                 expanded = langExpanded,
                                 onDismissRequest = { langExpanded = false },
                                 modifier = Modifier
+                                    .width(menuWidth)
                                     .background(CardBackgroundElevated)
                                     .border(1.dp, CardBorderSubtle, RoundedCornerShape(8.dp))
                             ) {
@@ -329,13 +331,15 @@ fun MainScreen(
                                             Text(
                                                 name,
                                                 color = if (code == targetLang) BrandPrimary else TextPrimary,
-                                                fontWeight = if (code == targetLang) FontWeight.Bold else FontWeight.Normal
+                                                fontWeight = if (code == targetLang) FontWeight.Bold else FontWeight.Normal,
+                                                modifier = Modifier.fillMaxWidth()
                                             )
                                         },
                                         onClick = {
                                             viewModel.updateTargetLang(code)
                                             langExpanded = false
-                                        }
+                                        },
+                                        modifier = Modifier.fillMaxWidth()
                                     )
                                 }
                             }
@@ -354,7 +358,8 @@ fun MainScreen(
 
                             Spacer(modifier = Modifier.height(6.dp))
 
-                            Box(modifier = Modifier.fillMaxWidth()) {
+                            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                                val menuWidth = maxWidth
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -390,6 +395,7 @@ fun MainScreen(
                                     expanded = dialectExpanded,
                                     onDismissRequest = { dialectExpanded = false },
                                     modifier = Modifier
+                                        .width(menuWidth)
                                         .background(CardBackgroundElevated)
                                         .border(1.dp, CardBorderSubtle, RoundedCornerShape(8.dp))
                                 ) {
@@ -399,13 +405,15 @@ fun MainScreen(
                                                 Text(
                                                     dialect.displayName,
                                                     color = if (dialect.code == targetDialect) BrandPrimary else TextPrimary,
-                                                    fontWeight = if (dialect.code == targetDialect) FontWeight.Bold else FontWeight.Normal
+                                                    fontWeight = if (dialect.code == targetDialect) FontWeight.Bold else FontWeight.Normal,
+                                                    modifier = Modifier.fillMaxWidth()
                                                 )
                                             },
                                             onClick = {
                                                 viewModel.updateTargetDialect(dialect.code)
                                                 dialectExpanded = false
-                                            }
+                                            },
+                                            modifier = Modifier.fillMaxWidth()
                                         )
                                     }
                                 }
