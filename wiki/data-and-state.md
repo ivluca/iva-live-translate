@@ -1,6 +1,6 @@
-# 💾 Quản lý Trạng thái & Dữ liệu (State & Data Management)
+# 💾 Quản lý Trạng thái & Lưu trữ Dữ liệu (State & Data Management)
 
-Kiến trúc luồng dữ liệu trong ALAD Mobile tuân thủ mô hình Unidirectional Data Flow (UDF) kết hợp Reactive Programming bằng Kotlin StateFlow và Jetpack DataStore.
+Tài liệu này chi tiết hóa cách thức ALAD / IVA quản lý trạng thái phiên dịch theo thời gian thực (in-memory) và lưu trữ cấu hình người dùng (persistent DataStore).
 
 ---
 
@@ -8,44 +8,41 @@ Kiến trúc luồng dữ liệu trong ALAD Mobile tuân thủ mô hình Unidire
 
 ### Vị trí: `app/src/main/kotlin/com/alad/app/data/repository/DubbingSessionRepository.kt`
 
-Đây là Singleton Object in-memory đóng vai trò "Single Source of Truth" (Nguồn chân lý duy nhất) cho toàn bộ tiến trình thuyết minh trực tiếp:
+`DubbingSessionRepository` là một Singleton in-memory đóng vai trò **Single Source of Truth** cho toàn bộ dữ liệu trạng thái tương tác giữa `AudioDubbingForegroundService`, `OverlayWidgetService` và các màn hình Compose (`MainScreen`, `SettingsScreen`).
 
 ```mermaid
-flowchart LR
+flowchart TD
     Service["AudioDubbingForegroundService"] -->|Cập nhật dữ liệu| SessionRepo["DubbingSessionRepository"]
-    SessionRepo -->|StateFlow| MainScreen["MainScreen (Compose)"]
-    SessionRepo -->|StateFlow| OverlayWidget["OverlayWidgetService"]
+    WebSocket["ALADWebSocketManager"] -->|Ghi nhận subtitles & audio| SessionRepo
+    Capture["AudioCaptureManager"] -->|Cập nhật RMS amplitude| SessionRepo
+
+    SessionRepo -->|StateFlow| MainUI["MainScreen (Jetpack Compose)"]
+    SessionRepo -->|StateFlow| OverlayUI["OverlayWidgetService (Floating View)"]
 ```
 
-### Các trường StateFlow quan trọng:
+### Các StateFlow chính:
 - `isDubbingRunning: StateFlow<Boolean>`: Trạng thái phiên dịch đang bật hay tắt.
-- `audioAmplitude: StateFlow<Float>`: Biên độ âm lượng đầu vào (0.0f - 1.0f) dùng để tạo hiệu ứng sóng âm động.
-- `connectionStatus: StateFlow<String>`: Tình trạng kết nối WebSocket ("Connecting", "Connected", "Gemini Ready", "Disconnected", "Error").
-- `liveSubtitleText: StateFlow<String>`: Nội dung phụ đề dịch thời gian thực (được tự động nối chuỗi và dọn dẹp khoảng trắng).
-- `liveSourceSubtitleText: StateFlow<String>`: Nội dung transcript lời nói gốc.
+- `audioAmplitude: StateFlow<Float>`: Biên độ âm thanh chuẩn hóa (0.0f - 1.0f) dùng vẽ sóng âm Visualizer.
+- `liveSubtitleText: StateFlow<String>`: Văn bản phụ đề đã dịch nhận từ Gemini Live.
+- `liveSourceSubtitleText: StateFlow<String>`: Văn bản gốc nhận từ mô hình nhận dạng giọng nói Gemini.
 - `dubbingVolume: StateFlow<Float>` & `originalVolumeRatio: StateFlow<Float>`: Giá trị âm lượng tức thời của mixer.
 
 ---
 
-## 2. Lưu trữ cấu hình bền vững: `UserPreferencesRepository`
+## 2. Cấu hình người dùng bền vững: `UserPreferencesRepository`
 
 ### Vị trí: `app/src/main/kotlin/com/alad/app/data/repository/UserPreferencesRepository.kt`
 
-Sử dụng Jetpack DataStore Preferences thay thế hoàn toàn cho SharedPreferences truyền thống, đảm bảo tính bất đồng bộ (Asynchronous) và an toàn luồng (Thread-safety):
+Sử dụng Jetpack DataStore Preferences để lưu trữ bất đồng bộ các tùy chọn cấu hình của người dùng.
 
-```kotlin
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "alad_settings")
-```
-
-### Các khóa cài đặt chính:
-- `API_KEY`: Chuỗi Gemini API Key.
-- `TARGET_LANG`: Mã ngôn ngữ đích được chọn (mặc định: `"vi"`).
-- `TARGET_DIALECT`: Mã ngữ điệu hoặc phương ngữ đã chọn (ví dụ `"vi-VN-N"`, `"en-US"`).
-- `VOICE_PERSONA`: Nhân vật giọng AI (`Puck`, `Charon`, `Aoede`, `Fenrir`, `Kore`).
-- `VOLUME_RATIO`: Tỷ lệ âm lượng giọng đọc AI (0.0f - 1.0f).
-- `ORIGINAL_VOLUME`: Tỷ lệ âm lượng âm thanh nền video gốc.
+### Các khóa Preferences quan trọng:
+- `GEMINI_API_KEY`: Khóa API Google Gemini Live.
+- `TARGET_LANG`: Mã ngôn ngữ đích đã chọn (`"vi"`, `"en"`, `"ja"`). Mặc định: `"vi"`.
+- `TARGET_DIALECT`: Mã ngữ điệu hoặc phương ngữ đã chọn (ví dụ `"vi-VN-N"`, `"en-US"`). Mặc định: `"vi-VN-N"`.
+- `VOICE_PERSONA`: Chất giọng AI (`Aoede`, `Puck`, `Charon`, `Kore`, `Fenrir`).
 - `DUBBING_MODE`: Chế độ thuyết minh (`HYBRID`, `AUDIO_ONLY`, `SUBTITLE_ONLY`).
-- `SHOW_DUAL_SUBTITLES`: Bật/tắt phụ đề song ngữ.
+- `DUBBING_VOLUME` & `ORIGINAL_VOLUME`: Mức âm lượng mặc định của hai kênh.
+- `SHOW_DUAL_SUBTITLES`: Tùy chọn hiển thị đồng thời cả phụ đề gốc và phụ đề dịch trên Overlay.
 
 ---
 
@@ -53,28 +50,27 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "al
 
 ### Vị trí: `app/src/main/kotlin/com/alad/app/presentation/main/Languages.kt`
 
-Đã được tối ưu hóa chỉ tập trung vào 3 ngôn ngữ mục tiêu chính:
+Đã được tối ưu hóa chỉ tập trung vào 3 ngôn ngữ mục tiêu chính (không kèm emoji cờ, dùng Select Box chuẩn):
 
 ```kotlin
 val supportedLanguages = listOf(
-    "vi" to "🇻🇳 Tiếng Việt",
-    "en" to "🇺🇸 English",
-    "ja" to "🇯🇵 日本語"
+    "vi" to "Tiếng Việt",
+    "en" to "English",
+    "ja" to "日本語"
 )
 
 val supportedDialects: Map<String, List<DialectOption>> = mapOf(
     "vi" to listOf(
-        DialectOption("vi-VN-N", "🇻🇳 Giọng Miền Bắc (Hà Nội)", "Nói bằng tiếng Việt giọng Bắc (Hà Nội) tự nhiên, rõ ràng, phát âm chuẩn."),
-        DialectOption("vi-VN-S", "🇻🇳 Giọng Miền Nam (Sài Gòn)", "Nói bằng tiếng Việt giọng Nam Bộ tự nhiên, thân thiện, truyền cảm.")
+        DialectOption("vi-VN-N", "Giọng Miền Bắc", "Nói bằng tiếng Việt giọng Bắc (Hà Nội) tự nhiên, rõ ràng, phát âm chuẩn.")
     ),
     "en" to listOf(
-        DialectOption("en-US", "🇺🇸 American", "Speak in natural General American English pronunciation and vocabulary"),
-        DialectOption("en-GB", "🇬🇧 British", "Speak in British English (Received Pronunciation)"),
-        DialectOption("en-AU", "🇦🇺 Australian", "Speak in natural Australian English accent and terminology"),
-        DialectOption("en-IN", "🇮🇳 Indian", "Speak in clear Indian English accent")
+        DialectOption("en-US", "American", "Speak in natural General American English pronunciation and vocabulary"),
+        DialectOption("en-GB", "British", "Speak in British English (Received Pronunciation)"),
+        DialectOption("en-AU", "Australian", "Speak in natural Australian English accent and terminology"),
+        DialectOption("en-IN", "Indian", "Speak in clear Indian English accent")
     ),
     "ja" to listOf(
-        DialectOption("ja-JP", "🇯🇵 Standard Japanese (標準語)", "Speak in natural standard Japanese (Hyojungo/Tokyo dialect) with polite and natural intonation")
+        DialectOption("ja-JP", "Standard Japanese (標準語)", "Speak in natural standard Japanese (Hyojungo/Tokyo dialect) with polite and natural intonation")
     )
 )
 ```

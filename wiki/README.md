@@ -1,6 +1,6 @@
-# 📚 ALAD Mobile — Developer Wiki
+# 📚 IVA (ALAD) Mobile — Developer Wiki
 
-Chào mừng đến với hệ thống tài liệu kiến trúc kỹ thuật của **ALAD Mobile** (AI Live Audio Dubbing). Tài liệu này được thiết kế nhằm giúp các lập trình viên và các AI coding agents nhanh chóng nắm bắt bức tranh toàn cảnh, nguyên lý vận hành và chi tiết từng tầng kỹ thuật của dự án mà không tốn thời gian đọc lại từng dòng code.
+Chào mừng đến với hệ thống tài liệu kiến trúc kỹ thuật của **IVA Mobile** (trước đây là ALAD Mobile — AI Live Translate & Dubbing). Tài liệu này được thiết kế nhằm giúp các lập trình viên và các AI coding agents nhanh chóng nắm bắt bức tranh toàn cảnh, nguyên lý vận hành và chi tiết từng tầng kỹ thuật của dự án mà không tốn thời gian đọc lại từng dòng code.
 
 ---
 
@@ -32,10 +32,11 @@ Chào mừng đến với hệ thống tài liệu kiến trúc kỹ thuật c�
 
 | Hạng mục | Giá trị kỹ thuật | Ghi chú |
 | :--- | :--- | :--- |
+| **Tên ứng dụng** | **IVA** (Live Translate) | Mã dự án: ALAD Mobile |
 | **Android Target / Min SDK** | SDK 34 / SDK 29 (Android 10+) | Yêu cầu tối thiểu Android 10 để bắt AudioPlaybackCapture |
-| **Ngôn ngữ & UI** | Kotlin 1.9+, Jetpack Compose, Material 3 | Single Activity + Compose View trên Overlay |
+| **Ngôn ngữ & UI** | Kotlin 1.9+, Jetpack Compose, Material 3 | Giao diện Dark theme đỏ `#E72234`, Select Box chuẩn không keyboard |
 | **Capture Audio Format** | 16,000 Hz, 16-bit Mono PCM, 1280 bytes/chunk | 40ms / chunk, truyền thẳng qua WebSocket |
 | **Playback Audio Format** | 24,000 Hz, 16-bit Mono PCM | AudioTrack Stream mode, Low Latency |
 | **AI Model** | `gemini-3.5-live-translate-preview` | Google Generative Multimodal Live Bidi WebSocket |
 | **WebSocket Endpoint** | `wss://generativelanguage.googleapis.com/ws/...` | Giao tiếp 2 chiều toàn phần (Full-Duplex) |
-| **Target Languages** | Tiếng Việt (`vi`), Tiếng Anh (`en`), Tiếng Nhật (`ja`) | Tối ưu hóa cho người dùng Việt Nam & học ngoại ngữ |
+| **Target Languages** | Tiếng Việt (`vi`), Tiếng Anh (`en`), Tiếng Nhật (`ja`) | Mặc định Tiếng Việt phương ngữ Bắc (`vi-VN-N`) |
