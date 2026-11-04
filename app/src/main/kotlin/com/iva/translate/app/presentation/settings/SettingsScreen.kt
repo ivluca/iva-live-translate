@@ -9,6 +9,7 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
@@ -21,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
@@ -40,7 +42,6 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
     val apiKey by viewModel.userApiKey.collectAsState()
-    val selectedVoice by viewModel.voicePersona.collectAsState()
     val selectedMode by viewModel.dubbingMode.collectAsState()
     val showDualSubtitles by viewModel.showDualSubtitles.collectAsState()
 
@@ -56,24 +57,25 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .statusBarsPadding()
-                        .padding(horizontal = 20.dp, vertical = 14.dp),
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     GlassIconButton(
                         icon = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
                         onClick = onBack,
-                        tint = TextPrimary
+                        tint = TextPrimary,
+                        size = 34.dp
                     )
 
-                    Spacer(modifier = Modifier.width(16.dp))
+                    Spacer(modifier = Modifier.width(12.dp))
 
                     Text(
                         text = stringResource(R.string.settings),
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.Bold,
                             color = TextPrimary,
-                            fontSize = 18.sp
+                            fontSize = 17.sp
                         )
                     )
                 }
@@ -86,24 +88,24 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                     .fillMaxSize()
                     .padding(paddingValues)
                     .verticalScroll(scrollState)
-                    .padding(horizontal = 20.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                // 1. API Key Configuration
+                // 1. API Key Configuration Card
                 GlassCard(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp)
+                    shape = RoundedCornerShape(8.dp)
                 ) {
                     Column(
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(12.dp)
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(RoundedCornerShape(8.dp))
+                                    .size(28.dp)
+                                    .clip(RoundedCornerShape(6.dp))
                                     .background(BrandPrimarySubtle),
                                 contentAlignment = Alignment.Center
                             ) {
@@ -111,68 +113,95 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                                     imageVector = Icons.Default.Key,
                                     contentDescription = null,
                                     tint = BrandPrimary,
-                                    modifier = Modifier.size(18.dp)
+                                    modifier = Modifier.size(15.dp)
                                 )
                             }
 
-                            Spacer(modifier = Modifier.width(12.dp))
+                            Spacer(modifier = Modifier.width(10.dp))
 
                             Column {
                                 Text(
                                     text = stringResource(R.string.gemini_api_key),
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = TextPrimary,
-                                    fontSize = 15.sp
+                                    fontSize = 13.5.sp
                                 )
                                 Text(
                                     text = "Google AI Studio Live API",
                                     color = TextMuted,
-                                    fontSize = 12.sp
+                                    fontSize = 11.sp
                                 )
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(14.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
 
-                        OutlinedTextField(
-                            value = apiKey,
-                            onValueChange = viewModel::updateApiKey,
-                            placeholder = { Text("AIzaSy...", color = TextMuted) },
-                            visualTransformation = if (apiKeyVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(8.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = CardBackgroundElevated,
-                                unfocusedContainerColor = CardBackgroundElevated,
-                                focusedBorderColor = BrandPrimary,
-                                unfocusedBorderColor = CardBorderSubtle,
-                                focusedTextColor = TextPrimary,
-                                unfocusedTextColor = TextPrimary
-                            ),
-                            trailingIcon = {
-                                IconButton(onClick = { apiKeyVisible = !apiKeyVisible }) {
-                                    Icon(
-                                        imageVector = if (apiKeyVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                        contentDescription = if (apiKeyVisible) stringResource(R.string.hide) else stringResource(R.string.show),
-                                        tint = if (apiKeyVisible) BrandPrimary else TextMuted
-                                    )
-                                }
-                            }
-                        )
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
+                        // Compact Sleek Text Field
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(46.dp)
-                                .clip(RoundedCornerShape(8.dp))
+                                .height(38.dp)
+                                .clip(RoundedCornerShape(7.dp))
                                 .background(CardBackgroundElevated)
-                                .border(BorderStroke(1.dp, CardBorderSubtle), RoundedCornerShape(8.dp))
+                                .border(BorderStroke(1.dp, CardBorderSubtle), RoundedCornerShape(7.dp))
+                                .padding(horizontal = 12.dp),
+                            contentAlignment = Alignment.CenterStart
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(modifier = Modifier.weight(1f)) {
+                                    if (apiKey.isEmpty()) {
+                                        Text(
+                                            text = "AIzaSy...",
+                                            color = TextMuted,
+                                            fontSize = 13.sp
+                                        )
+                                    }
+                                    BasicTextField(
+                                        value = apiKey,
+                                        onValueChange = viewModel::updateApiKey,
+                                        singleLine = true,
+                                        visualTransformation = if (apiKeyVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                                        textStyle = LocalTextStyle.current.copy(
+                                            color = TextPrimary,
+                                            fontSize = 13.sp,
+                                            fontWeight = FontWeight.Normal
+                                        ),
+                                        cursorBrush = SolidColor(BrandPrimary),
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+
+                                IconButton(
+                                    onClick = { apiKeyVisible = !apiKeyVisible },
+                                    modifier = Modifier.size(24.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = if (apiKeyVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                        contentDescription = if (apiKeyVisible) stringResource(R.string.hide) else stringResource(R.string.show),
+                                        tint = if (apiKeyVisible) BrandPrimary else TextMuted,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Compact Link Button
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(36.dp)
+                                .clip(RoundedCornerShape(7.dp))
+                                .background(CardBackgroundElevated)
+                                .border(BorderStroke(1.dp, CardBorderSubtle), RoundedCornerShape(7.dp))
                                 .clickable {
                                     uriHandler.openUri("https://aistudio.google.com/app/apikey")
                                 }
-                                .padding(horizontal = 14.dp),
+                                .padding(horizontal = 12.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Row(
@@ -184,130 +213,30 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                                     text = stringResource(R.string.get_api_key),
                                     color = BrandPrimary,
                                     fontWeight = FontWeight.SemiBold,
-                                    fontSize = 13.5.sp
+                                    fontSize = 12.5.sp
                                 )
 
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.OpenInNew,
                                     contentDescription = null,
                                     tint = BrandPrimary,
-                                    modifier = Modifier.size(16.dp)
+                                    modifier = Modifier.size(14.dp)
                                 )
                             }
                         }
                     }
                 }
 
-                // 2. AI Voice Persona Selection Card (Top 6 Voices: 3 Female / 3 Male)
+                // 2. Dual Subtitles Option Card
                 GlassCard(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp)
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(36.dp)
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .background(BrandPrimarySubtle),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.RecordVoiceOver,
-                                        contentDescription = null,
-                                        tint = BrandPrimary,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.width(12.dp))
-
-                                Text(
-                                    text = stringResource(R.string.voice_persona),
-                                    fontWeight = FontWeight.Bold,
-                                    color = TextPrimary,
-                                    fontSize = 15.sp
-                                )
-                            }
-
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(4.dp))
-                                    .background(BrandPrimarySubtle)
-                                    .padding(horizontal = 8.dp, vertical = 2.dp)
-                            ) {
-                                Text(
-                                    text = "3 Nữ • 3 Nam",
-                                    color = BrandPrimary,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(14.dp))
-
-                        val voiceRows = listOf(
-                            listOf("Aoede", "Kore", "Zephyr"),
-                            listOf("Puck", "Charon", "Fenrir")
-                        )
-
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            voiceRows.forEach { rowVoices ->
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    rowVoices.forEach { voiceId ->
-                                        val isSelected = selectedVoice == voiceId
-                                        Box(
-                                            modifier = Modifier
-                                                .weight(1f)
-                                                .height(48.dp)
-                                                .clip(RoundedCornerShape(8.dp))
-                                                .background(if (isSelected) BrandPrimarySubtle else CardBackgroundElevated)
-                                                .border(
-                                                    BorderStroke(
-                                                        1.dp,
-                                                        if (isSelected) BrandPrimary else CardBorderSubtle
-                                                    ),
-                                                    shape = RoundedCornerShape(8.dp)
-                                                )
-                                                .clickable { viewModel.updateVoicePersona(voiceId) },
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Text(
-                                                text = voiceId,
-                                                color = if (isSelected) BrandPrimary else TextSecondary,
-                                                fontSize = 13.5.sp,
-                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // 3. Dual Subtitles Option Card
-                GlassCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp),
+                    shape = RoundedCornerShape(8.dp),
                     onClick = { viewModel.updateShowDualSubtitles(!showDualSubtitles) }
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp),
+                            .padding(horizontal = 14.dp, vertical = 9.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -316,19 +245,20 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                                 text = stringResource(R.string.dual_subtitles),
                                 fontWeight = FontWeight.SemiBold,
                                 color = TextPrimary,
-                                fontSize = 14.sp
+                                fontSize = 13.5.sp
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = stringResource(R.string.dual_subtitles_desc),
                                 color = TextMuted,
-                                fontSize = 12.sp
+                                fontSize = 11.5.sp
                             )
                         }
 
                         Switch(
                             checked = showDualSubtitles,
                             onCheckedChange = { viewModel.updateShowDualSubtitles(it) },
+                            modifier = Modifier.scale(0.85f),
                             colors = SwitchDefaults.colors(
                                 checkedThumbColor = Color.White,
                                 checkedTrackColor = BrandPrimary,
@@ -339,17 +269,17 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                     }
                 }
 
-                // 4. Dubbing Mode Card
+                // 3. Dubbing Mode Card (Compact Options)
                 GlassCard(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp)
+                    shape = RoundedCornerShape(8.dp)
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
+                    Column(modifier = Modifier.padding(12.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Box(
                                 modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(RoundedCornerShape(8.dp))
+                                    .size(28.dp)
+                                    .clip(RoundedCornerShape(6.dp))
                                     .background(BrandPrimarySubtle),
                                 contentAlignment = Alignment.Center
                             ) {
@@ -357,28 +287,28 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                                     imageVector = Icons.Default.Tune,
                                     contentDescription = null,
                                     tint = BrandPrimary,
-                                    modifier = Modifier.size(18.dp)
+                                    modifier = Modifier.size(15.dp)
                                 )
                             }
 
-                            Spacer(modifier = Modifier.width(12.dp))
+                            Spacer(modifier = Modifier.width(10.dp))
 
                             Column {
                                 Text(
                                     text = stringResource(R.string.dubbing_mode),
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = TextPrimary,
-                                    fontSize = 15.sp
+                                    fontSize = 13.5.sp
                                 )
                                 Text(
                                     text = "Choose audio, subtitles, or both",
                                     color = TextMuted,
-                                    fontSize = 12.sp
+                                    fontSize = 11.sp
                                 )
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(14.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
                         val modes = listOf(
                             Triple(UserPreferencesRepository.MODE_HYBRID, stringResource(R.string.mode_hybrid), Icons.Default.GraphicEq),
@@ -391,18 +321,20 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 3.dp)
-                                    .clip(RoundedCornerShape(8.dp))
+                                    .padding(vertical = 2.dp)
+                                    .height(36.dp)
+                                    .clip(RoundedCornerShape(6.dp))
                                     .background(if (isSelected) BrandPrimarySubtle else CardBackgroundElevated)
                                     .border(
                                         BorderStroke(
                                             1.dp,
                                             if (isSelected) BrandPrimary else CardBorderSubtle
                                         ),
-                                        shape = RoundedCornerShape(8.dp)
+                                        shape = RoundedCornerShape(6.dp)
                                     )
                                     .clickable { viewModel.updateDubbingMode(modeId) }
-                                    .padding(horizontal = 14.dp, vertical = 11.dp)
+                                    .padding(horizontal = 12.dp),
+                                contentAlignment = Alignment.CenterStart
                             ) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
@@ -412,13 +344,13 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                                         imageVector = icon,
                                         contentDescription = null,
                                         tint = if (isSelected) BrandPrimary else TextMuted,
-                                        modifier = Modifier.size(18.dp)
+                                        modifier = Modifier.size(16.dp)
                                     )
-                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Spacer(modifier = Modifier.width(10.dp))
                                     Text(
                                         text = modeLabel,
                                         color = if (isSelected) TextPrimary else TextSecondary,
-                                        fontSize = 13.5.sp,
+                                        fontSize = 12.5.sp,
                                         fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                                         modifier = Modifier.weight(1f)
                                     )
@@ -427,7 +359,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                                             imageVector = Icons.Default.CheckCircle,
                                             contentDescription = null,
                                             tint = BrandPrimary,
-                                            modifier = Modifier.size(18.dp)
+                                            modifier = Modifier.size(16.dp)
                                         )
                                     }
                                 }
@@ -436,9 +368,9 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                     }
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(2.dp))
 
-                // 5. Save Settings Button
+                // 4. Save Settings Button (Compact 42dp)
                 val interactionSource = remember { MutableInteractionSource() }
                 val isPressed by interactionSource.collectIsPressedAsState()
                 val scale by animateFloatAsState(
@@ -450,7 +382,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(50.dp)
+                        .height(42.dp)
                         .scale(scale)
                         .clip(RoundedCornerShape(8.dp))
                         .background(BrandPrimary)
@@ -479,19 +411,19 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                             imageVector = Icons.Default.Save,
                             contentDescription = null,
                             tint = Color.White,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(18.dp)
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = stringResource(R.string.save_settings),
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
-                            fontSize = 15.sp
+                            fontSize = 14.sp
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(10.dp))
             }
         }
     }

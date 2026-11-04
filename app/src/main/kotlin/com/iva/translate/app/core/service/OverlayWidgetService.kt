@@ -501,7 +501,7 @@ fun FloatingCinemaSubtitles(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "IVA SUBTITLES",
+                        text = "iva Subtitles",
                         color = NeonCyan,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.ExtraBold,

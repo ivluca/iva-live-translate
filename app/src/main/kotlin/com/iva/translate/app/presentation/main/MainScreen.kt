@@ -14,6 +14,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
@@ -35,7 +37,11 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -82,7 +88,7 @@ fun MainScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .statusBarsPadding()
-                        .padding(horizontal = 20.dp, vertical = 14.dp),
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -91,34 +97,34 @@ fun MainScreen(
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(38.dp)
-                                .clip(RoundedCornerShape(8.dp))
+                                .size(32.dp)
+                                .clip(RoundedCornerShape(7.dp))
                                 .background(CardBackgroundElevated)
-                                .border(BorderStroke(1.dp, CardBorderSubtle), RoundedCornerShape(8.dp))
-                                .padding(5.dp),
+                                .border(BorderStroke(1.dp, CardBorderSubtle), RoundedCornerShape(7.dp))
+                                .padding(4.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Image(
                                 painter = painterResource(id = R.drawable.app_logo),
-                                contentDescription = "IVA Logo",
+                                contentDescription = "iva Logo",
                                 modifier = Modifier.fillMaxSize()
                             )
                         }
 
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.width(10.dp))
 
                         Column {
                             Text(
-                                text = "IVA",
+                                text = "iva",
                                 fontWeight = FontWeight.Bold,
                                 color = TextPrimary,
-                                fontSize = 18.sp,
+                                fontSize = 16.sp,
                                 letterSpacing = 0.5.sp
                             )
                             Text(
                                 text = "Live Translate Audio",
                                 color = TextMuted,
-                                fontSize = 11.sp,
+                                fontSize = 10.5.sp,
                                 fontWeight = FontWeight.Normal
                             )
                         }
@@ -127,12 +133,12 @@ fun MainScreen(
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-
                         GlassIconButton(
                             icon = Icons.Default.Settings,
                             contentDescription = "Settings",
                             onClick = onNavigateToSettings,
-                            tint = TextSecondary
+                            tint = TextSecondary,
+                            size = 34.dp
                         )
                     }
                 }
@@ -144,9 +150,9 @@ fun MainScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
                     .verticalScroll(scrollState)
-                    .padding(horizontal = 20.dp, vertical = 8.dp),
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(14.dp)
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
 
                 // 1. Status Indicator
@@ -162,13 +168,11 @@ fun MainScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // 2. Audio Spectrum Visualizer
+                // 2. Audio Spectrum Visualizer (Compact & Clean)
                 AnimatedAudioBarsVisualizer(
                     isConnected = isConnected,
                     amplitude = amplitude,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 // 3. Live Dual Subtitles Banner
@@ -179,10 +183,10 @@ fun MainScreen(
                 ) {
                     GlassCard(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp),
+                        shape = RoundedCornerShape(8.dp),
                         borderColor = CardBorderSubtle
                     ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
+                        Column(modifier = Modifier.padding(12.dp)) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
@@ -191,15 +195,15 @@ fun MainScreen(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Box(
                                         modifier = Modifier
-                                            .size(6.dp)
+                                            .size(5.dp)
                                             .clip(CircleShape)
                                             .background(StatusActive)
                                     )
-                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Spacer(modifier = Modifier.width(5.dp))
                                     Text(
                                         text = stringResource(R.string.live_subtitles).uppercase(),
                                         color = StatusActive,
-                                        fontSize = 11.sp,
+                                        fontSize = 10.5.sp,
                                         fontWeight = FontWeight.Bold,
                                         letterSpacing = 0.5.sp
                                     )
@@ -208,29 +212,29 @@ fun MainScreen(
                                 Text(
                                     text = "$selectedVoice • $selectedMode",
                                     color = TextMuted,
-                                    fontSize = 11.sp
+                                    fontSize = 10.5.sp
                                 )
                             }
 
-                            Spacer(modifier = Modifier.height(10.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
 
                             if (showDualSubtitles && liveSourceSubtitleText.isNotEmpty()) {
                                 Text(
                                     text = liveSourceSubtitleText,
                                     color = TextSecondary,
-                                    fontSize = 13.sp,
-                                    lineHeight = 18.sp,
+                                    fontSize = 12.5.sp,
+                                    lineHeight = 17.sp,
                                     fontWeight = FontWeight.Normal
                                 )
-                                Spacer(modifier = Modifier.height(6.dp))
+                                Spacer(modifier = Modifier.height(4.dp))
                             }
 
                             if (liveSubtitleText.isNotEmpty()) {
                                 Text(
                                     text = liveSubtitleText,
                                     color = TextPrimary,
-                                    fontSize = 15.sp,
-                                    lineHeight = 22.sp,
+                                    fontSize = 14.sp,
+                                    lineHeight = 20.sp,
                                     fontWeight = FontWeight.SemiBold
                                 )
                             }
@@ -249,10 +253,10 @@ fun MainScreen(
 
                 GlassCard(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp)
+                    shape = RoundedCornerShape(8.dp)
                 ) {
                     Column(
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(12.dp)
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -262,7 +266,7 @@ fun MainScreen(
                             Text(
                                 text = stringResource(R.string.target_dubbing_language),
                                 color = TextPrimary,
-                                fontSize = 14.sp,
+                                fontSize = 13.5.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
 
@@ -270,50 +274,51 @@ fun MainScreen(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(4.dp))
                                     .background(BrandPrimarySubtle)
-                                    .padding(horizontal = 8.dp, vertical = 2.dp)
+                                    .padding(horizontal = 7.dp, vertical = 2.dp)
                             ) {
                                 Text(
                                     text = targetLang.uppercase(),
                                     color = BrandPrimary,
-                                    fontSize = 11.sp,
+                                    fontSize = 10.5.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                        // Language Select Box (No keyboard, clean selector)
+                        // Compact Language Select Box
                         BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
                             val menuWidth = maxWidth
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(50.dp)
-                                    .clip(RoundedCornerShape(8.dp))
+                                    .height(38.dp)
+                                    .clip(RoundedCornerShape(7.dp))
                                     .background(CardBackgroundElevated)
                                     .border(
                                         BorderStroke(
                                             1.dp,
                                             if (langExpanded) BrandPrimary else CardBorderSubtle
                                         ),
-                                        RoundedCornerShape(8.dp)
+                                        RoundedCornerShape(7.dp)
                                     )
                                     .clickable { langExpanded = !langExpanded }
-                                    .padding(horizontal = 14.dp),
+                                    .padding(horizontal = 12.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
                                     text = displayLang,
                                     color = TextPrimary,
-                                    fontSize = 14.sp,
+                                    fontSize = 13.sp,
                                     fontWeight = FontWeight.Medium
                                 )
                                 Icon(
                                     imageVector = if (langExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
                                     contentDescription = null,
-                                    tint = if (langExpanded) BrandPrimary else TextMuted
+                                    tint = if (langExpanded) BrandPrimary else TextMuted,
+                                    modifier = Modifier.size(20.dp)
                                 )
                             }
 
@@ -332,6 +337,7 @@ fun MainScreen(
                                                 name,
                                                 color = if (code == targetLang) BrandPrimary else TextPrimary,
                                                 fontWeight = if (code == targetLang) FontWeight.Bold else FontWeight.Normal,
+                                                fontSize = 13.sp,
                                                 modifier = Modifier.fillMaxWidth()
                                             )
                                         },
@@ -345,49 +351,50 @@ fun MainScreen(
                             }
                         }
 
-                        // Dialect / Accent Selector (if dialects available for this language)
+                        // Compact Dialect / Accent Selector
                         if (availableDialects.isNotEmpty()) {
-                            Spacer(modifier = Modifier.height(14.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
 
                             Text(
                                 text = stringResource(R.string.target_dialect),
                                 color = TextSecondary,
-                                fontSize = 12.5.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Medium
                             )
 
-                            Spacer(modifier = Modifier.height(6.dp))
+                            Spacer(modifier = Modifier.height(4.dp))
 
                             BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
                                 val menuWidth = maxWidth
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .height(50.dp)
-                                        .clip(RoundedCornerShape(8.dp))
+                                        .height(38.dp)
+                                        .clip(RoundedCornerShape(7.dp))
                                         .background(CardBackgroundElevated)
                                         .border(
                                             BorderStroke(
                                                 1.dp,
                                                 if (dialectExpanded) BrandPrimary else CardBorderSubtle
                                             ),
-                                            RoundedCornerShape(8.dp)
+                                            RoundedCornerShape(7.dp)
                                         )
                                         .clickable { dialectExpanded = !dialectExpanded }
-                                        .padding(horizontal = 14.dp),
+                                        .padding(horizontal = 12.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
                                     Text(
                                         text = displayDialect,
                                         color = TextPrimary,
-                                        fontSize = 14.sp,
+                                        fontSize = 13.sp,
                                         fontWeight = FontWeight.Medium
                                     )
                                     Icon(
                                         imageVector = if (dialectExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
                                         contentDescription = null,
-                                        tint = if (dialectExpanded) BrandPrimary else TextMuted
+                                        tint = if (dialectExpanded) BrandPrimary else TextMuted,
+                                        modifier = Modifier.size(20.dp)
                                     )
                                 }
 
@@ -406,6 +413,7 @@ fun MainScreen(
                                                     dialect.displayName,
                                                     color = if (dialect.code == targetDialect) BrandPrimary else TextPrimary,
                                                     fontWeight = if (dialect.code == targetDialect) FontWeight.Bold else FontWeight.Normal,
+                                                    fontSize = 13.sp,
                                                     modifier = Modifier.fillMaxWidth()
                                                 )
                                             },
@@ -422,13 +430,109 @@ fun MainScreen(
                     }
                 }
 
-                // 5. Dual Audio Mixer Card
+                // 5. AI Voice Persona Selection Card (Sleek Compact Grid)
                 GlassCard(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp)
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(BrandPrimarySubtle),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.RecordVoiceOver,
+                                        contentDescription = null,
+                                        tint = BrandPrimary,
+                                        modifier = Modifier.size(15.dp)
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.width(8.dp))
+
+                                Text(
+                                    text = stringResource(R.string.voice_persona),
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = TextPrimary,
+                                    fontSize = 13.5.sp
+                                )
+                            }
+
+                            Text(
+                                text = "Active: $selectedVoice",
+                                color = BrandPrimary,
+                                fontSize = 11.5.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        val voiceRows = listOf(
+                            listOf("Aoede", "Kore", "Zephyr"),
+                            listOf("Puck", "Charon", "Fenrir")
+                        )
+
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            voiceRows.forEach { rowVoices ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    rowVoices.forEach { voiceId ->
+                                        val isSelected = selectedVoice == voiceId
+                                        Box(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .height(34.dp)
+                                                .clip(RoundedCornerShape(6.dp))
+                                                .background(if (isSelected) BrandPrimarySubtle else CardBackgroundElevated)
+                                                .border(
+                                                    BorderStroke(
+                                                        1.dp,
+                                                        if (isSelected) BrandPrimary else CardBorderSubtle
+                                                    ),
+                                                    shape = RoundedCornerShape(6.dp)
+                                                )
+                                                .clickable {
+                                                    haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                                                    viewModel.updateVoicePersona(voiceId)
+                                                },
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = voiceId,
+                                                color = if (isSelected) BrandPrimary else TextSecondary,
+                                                fontSize = 12.sp,
+                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // 6. Dual Audio Mixer Card (Compact Layout)
+                GlassCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
                 ) {
                     Column(
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -438,18 +542,18 @@ fun MainScreen(
                                 imageVector = Icons.Default.Tune,
                                 contentDescription = null,
                                 tint = BrandPrimary,
-                                modifier = Modifier.size(18.dp)
+                                modifier = Modifier.size(15.dp)
                             )
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
                             Text(
                                 text = stringResource(R.string.audio_mixer),
                                 color = TextPrimary,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 13.sp
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(14.dp))
+                        Spacer(modifier = Modifier.height(6.dp))
 
                         // A. Dubbed AI Voice Volume Slider + Mute
                         Row(
@@ -460,7 +564,7 @@ fun MainScreen(
                             Text(
                                 text = stringResource(R.string.dubbed_voice_volume),
                                 color = if (isDubbingMuted) TextMuted else TextSecondary,
-                                fontSize = 13.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Medium
                             )
 
@@ -468,14 +572,14 @@ fun MainScreen(
                                 Text(
                                     text = if (isDubbingMuted) "MUTED" else "${(dubbingVol * 100).toInt()}%",
                                     color = if (isDubbingMuted) DangerRed else BrandPrimary,
-                                    fontSize = 12.sp,
+                                    fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold
                                 )
-                                Spacer(modifier = Modifier.width(8.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
                                 Box(
                                     modifier = Modifier
-                                        .size(28.dp)
-                                        .clip(RoundedCornerShape(6.dp))
+                                        .size(22.dp)
+                                        .clip(RoundedCornerShape(4.dp))
                                         .background(if (isDubbingMuted) DangerRedSubtle else CardBackgroundElevated)
                                         .clickable {
                                             haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
@@ -487,25 +591,19 @@ fun MainScreen(
                                         imageVector = if (isDubbingMuted) Icons.AutoMirrored.Filled.VolumeOff else Icons.AutoMirrored.Filled.VolumeUp,
                                         contentDescription = "Mute AI Voice",
                                         tint = if (isDubbingMuted) DangerRed else TextPrimary,
-                                        modifier = Modifier.size(14.dp)
+                                        modifier = Modifier.size(12.dp)
                                     )
                                 }
                             }
                         }
 
-                        Slider(
+                        SleekVolumeSlider(
                             value = dubbingVol,
                             onValueChange = { viewModel.setDubbingVolume(it) },
-                            valueRange = 0f..1f,
-                            colors = SliderDefaults.colors(
-                                thumbColor = BrandPrimary,
-                                activeTrackColor = BrandPrimary,
-                                inactiveTrackColor = CardBorderSubtle
-                            ),
-                            modifier = Modifier.fillMaxWidth()
+                            activeColor = BrandPrimary
                         )
 
-                        Spacer(modifier = Modifier.height(6.dp))
+                        Spacer(modifier = Modifier.height(4.dp))
 
                         // B. Original Media Audio Volume Slider + Mute
                         Row(
@@ -516,7 +614,7 @@ fun MainScreen(
                             Text(
                                 text = stringResource(R.string.original_media_volume),
                                 color = if (isOriginalMuted) TextMuted else TextSecondary,
-                                fontSize = 13.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Medium
                             )
 
@@ -524,14 +622,14 @@ fun MainScreen(
                                 Text(
                                     text = if (isOriginalMuted) "MUTED" else "${(originalVol * 100).toInt()}%",
                                     color = if (isOriginalMuted) DangerRed else TextSecondary,
-                                    fontSize = 12.sp,
+                                    fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold
                                 )
-                                Spacer(modifier = Modifier.width(8.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
                                 Box(
                                     modifier = Modifier
-                                        .size(28.dp)
-                                        .clip(RoundedCornerShape(6.dp))
+                                        .size(22.dp)
+                                        .clip(RoundedCornerShape(4.dp))
                                         .background(if (isOriginalMuted) DangerRedSubtle else CardBackgroundElevated)
                                         .clickable {
                                             haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
@@ -543,31 +641,25 @@ fun MainScreen(
                                         imageVector = if (isOriginalMuted) Icons.AutoMirrored.Filled.VolumeOff else Icons.AutoMirrored.Filled.VolumeUp,
                                         contentDescription = "Mute Original Audio",
                                         tint = if (isOriginalMuted) DangerRed else TextPrimary,
-                                        modifier = Modifier.size(14.dp)
+                                        modifier = Modifier.size(12.dp)
                                     )
                                 }
                             }
                         }
 
-                        Slider(
+                        SleekVolumeSlider(
                             value = originalVol,
                             onValueChange = { viewModel.setOriginalVolumeRatio(it) },
-                            valueRange = 0f..1f,
-                            colors = SliderDefaults.colors(
-                                thumbColor = TextSecondary,
-                                activeTrackColor = TextSecondary,
-                                inactiveTrackColor = CardBorderSubtle
-                            ),
-                            modifier = Modifier.fillMaxWidth()
+                            activeColor = TextSecondary
                         )
                     }
                 }
 
-                // 6. Floating Overlay Widget Switch Card
+                // 7. Floating Overlay Widget Switch Card (Compact)
                 val isWidgetActive by com.iva.translate.app.core.service.OverlayWidgetService.isWidgetActive.collectAsState()
                 GlassCard(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp),
+                    shape = RoundedCornerShape(8.dp),
                     onClick = {
                         if (!Settings.canDrawOverlays(context)) {
                             val intent = Intent(
@@ -588,7 +680,7 @@ fun MainScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp),
+                            .padding(horizontal = 14.dp, vertical = 9.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -597,7 +689,7 @@ fun MainScreen(
                                 text = stringResource(R.string.floating_widget),
                                 fontWeight = FontWeight.SemiBold,
                                 color = TextPrimary,
-                                fontSize = 14.sp
+                                fontSize = 13.5.sp
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
@@ -606,7 +698,7 @@ fun MainScreen(
                                 } else {
                                     stringResource(R.string.grant_permission_widget)
                                 },
-                                fontSize = 12.sp,
+                                fontSize = 11.5.sp,
                                 color = TextMuted
                             )
                         }
@@ -614,6 +706,7 @@ fun MainScreen(
                         Switch(
                             checked = isWidgetActive,
                             onCheckedChange = null,
+                            modifier = Modifier.scale(0.85f),
                             colors = SwitchDefaults.colors(
                                 checkedThumbColor = Color.White,
                                 checkedTrackColor = BrandPrimary,
@@ -624,7 +717,7 @@ fun MainScreen(
                     }
                 }
 
-                // 7. Start/Stop Translate Action Button
+                // 8. Start/Stop Translate Action Button (Sleek 42dp)
                 StartStopTranslateButton(
                     isConnected = isConnected,
                     onClick = {
@@ -636,7 +729,7 @@ fun MainScreen(
                     }
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(10.dp))
             }
         }
     }
@@ -644,7 +737,7 @@ fun MainScreen(
 
 /**
  * Clean Studio Audio Bars Visualizer.
- * Displays 32 discrete rounded bars that smoothly animate with audio amplitude when connected.
+ * Sleek 44dp height with 32 discrete rounded bars that smoothly animate with audio amplitude.
  */
 @Composable
 fun AnimatedAudioBarsVisualizer(
@@ -672,26 +765,25 @@ fun AnimatedAudioBarsVisualizer(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(64.dp)
-            .clip(RoundedCornerShape(10.dp))
+            .height(44.dp)
+            .clip(RoundedCornerShape(8.dp))
             .background(CardBackground)
-            .border(BorderStroke(1.dp, CardBorderSubtle), RoundedCornerShape(10.dp))
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .border(BorderStroke(1.dp, CardBorderSubtle), RoundedCornerShape(8.dp))
+            .padding(horizontal = 14.dp, vertical = 6.dp),
         contentAlignment = Alignment.Center
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val totalBars = 32
-            val spacing = 3.dp.toPx()
+            val spacing = 2.5.dp.toPx()
             val availableWidth = size.width - (spacing * (totalBars - 1))
             val barWidth = availableWidth / totalBars
-            val maxHeight = size.height - 4.dp.toPx()
-            val minHeight = 4.dp.toPx()
+            val maxHeight = size.height - 2.dp.toPx()
+            val minHeight = 3.dp.toPx()
 
             val barColor = if (isConnected) StatusActive else CardBorderSubtle
 
             for (i in 0 until totalBars) {
                 val normalizedIndex = i.toFloat() / (totalBars - 1)
-                // Curve weighting: center bars are taller
                 val centerWeight = sin(normalizedIndex * Math.PI).toFloat()
 
                 val wave = if (isConnected) {
@@ -716,7 +808,7 @@ fun AnimatedAudioBarsVisualizer(
                     color = barColor,
                     topLeft = Offset(x, y),
                     size = Size(barWidth, currentHeight),
-                    cornerRadius = CornerRadius(2.dp.toPx(), 2.dp.toPx())
+                    cornerRadius = CornerRadius(1.5.dp.toPx(), 1.5.dp.toPx())
                 )
             }
         }
@@ -746,7 +838,7 @@ fun StartStopTranslateButton(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
+            .height(42.dp)
             .scale(scale)
             .clip(RoundedCornerShape(8.dp))
             .background(buttonColor)
@@ -768,10 +860,10 @@ fun StartStopTranslateButton(
                 imageVector = if (isConnected) Icons.Default.Stop else Icons.Default.PlayArrow,
                 contentDescription = null,
                 tint = Color.White,
-                modifier = Modifier.size(22.dp)
+                modifier = Modifier.size(20.dp)
             )
 
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(6.dp))
 
             Text(
                 text = if (isConnected) stringResource(R.string.btn_stop) else stringResource(R.string.btn_start),
@@ -779,9 +871,94 @@ fun StartStopTranslateButton(
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
                     letterSpacing = 0.5.sp,
-                    fontSize = 15.sp
+                    fontSize = 14.sp
                 )
             )
         }
     }
 }
+
+/**
+ * Sleek, professional audio slider with 100% pixel-perfect concentric track (3dp) and thumb (12dp).
+ */
+@Composable
+fun SleekVolumeSlider(
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    activeColor: Color,
+    modifier: Modifier = Modifier
+) {
+    val density = LocalDensity.current
+    val thumbRadiusPx = with(density) { 6.dp.toPx() }
+    val trackHeightPx = with(density) { 3.dp.toPx() }
+    val borderWidthPx = with(density) { 1.2.dp.toPx() }
+
+    BoxWithConstraints(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(26.dp),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        val widthPx = constraints.maxWidth.toFloat()
+        val availableWidth = (widthPx - thumbRadiusPx * 2).coerceAtLeast(1f)
+
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(widthPx) {
+                    detectTapGestures { offset ->
+                        val newValue = ((offset.x - thumbRadiusPx) / availableWidth).coerceIn(0f, 1f)
+                        onValueChange(newValue)
+                    }
+                }
+                .pointerInput(widthPx) {
+                    detectHorizontalDragGestures { change, _ ->
+                        change.consume()
+                        val newValue = ((change.position.x - thumbRadiusPx) / availableWidth).coerceIn(0f, 1f)
+                        onValueChange(newValue)
+                    }
+                }
+        ) {
+            val centerY = size.height / 2f
+            val startX = thumbRadiusPx
+            val endX = size.width - thumbRadiusPx
+            val currentThumbX = (startX + availableWidth * value.coerceIn(0f, 1f)).coerceIn(startX, endX)
+
+            // Inactive track (background track)
+            drawLine(
+                color = CardBorderSubtle,
+                start = Offset(startX, centerY),
+                end = Offset(endX, centerY),
+                strokeWidth = trackHeightPx,
+                cap = StrokeCap.Round
+            )
+
+            // Active track (progress)
+            if (currentThumbX > startX) {
+                drawLine(
+                    color = activeColor,
+                    start = Offset(startX, centerY),
+                    end = Offset(currentThumbX, centerY),
+                    strokeWidth = trackHeightPx,
+                    cap = StrokeCap.Round
+                )
+            }
+
+            // Thumb Fill
+            drawCircle(
+                color = activeColor,
+                radius = thumbRadiusPx,
+                center = Offset(currentThumbX, centerY)
+            )
+
+            // Thumb Border
+            drawCircle(
+                color = Color.White.copy(alpha = 0.95f),
+                radius = thumbRadiusPx,
+                center = Offset(currentThumbX, centerY),
+                style = Stroke(width = borderWidthPx)
+            )
+        }
+    }
+}
+

@@ -12,6 +12,6 @@ data class DialectOption(
 
 val supportedDialects: Map<String, List<DialectOption>> = mapOf(
     "vi" to listOf(
-        DialectOption("vi-VN-N", "Giọng Miền Bắc", "Nói bằng tiếng Việt giọng Bắc (Hà Nội) tự nhiên, rõ ràng, phát âm chuẩn.")
+        DialectOption("vi-VN-N", "Miền Bắc", "Nói bằng tiếng Việt giọng Bắc (Hà Nội) tự nhiên, rõ ràng, phát âm chuẩn.")
     )
 )

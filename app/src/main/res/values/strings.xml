@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">IVA</string>
-    <string name="app_name_full">IVA - Live Translate</string>
+    <string name="app_name">iva</string>
+    <string name="app_name_full">iva - Live Translate</string>
     <string name="system_status">System Status</string>
     <string name="status_connected">Live Translate Active</string>
     <string name="status_disconnected">Ready / Disconnected</string>

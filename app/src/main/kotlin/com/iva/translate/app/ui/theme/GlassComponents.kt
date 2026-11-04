@@ -51,7 +51,7 @@ fun AmbientBackground(
 @Composable
 fun GlassCard(
     modifier: Modifier = Modifier,
-    shape: Shape = RoundedCornerShape(10.dp),
+    shape: Shape = RoundedCornerShape(8.dp),
     backgroundColor: Color = CardBackground,
     borderColor: Color = CardBorderSubtle,
     borderAlpha: Float = 1.0f,
@@ -82,7 +82,7 @@ fun GlassCard(
 fun LiquidGlassPill(
     isSelected: Boolean,
     modifier: Modifier = Modifier,
-    shape: Shape = RoundedCornerShape(8.dp),
+    shape: Shape = RoundedCornerShape(6.dp),
     onClick: (() -> Unit)? = null,
     content: @Composable RowScope.() -> Unit
 ) {
@@ -97,7 +97,7 @@ fun LiquidGlassPill(
             .background(pillBg)
             .border(BorderStroke(1.dp, borderColor), shape = shape)
             .then(clickableModifier)
-            .padding(horizontal = 14.dp, vertical = 8.dp),
+            .padding(horizontal = 10.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
@@ -115,14 +115,14 @@ fun GlassIconButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     tint: Color = TextPrimary,
-    size: Dp = 40.dp
+    size: Dp = 34.dp
 ) {
     Box(
         modifier = modifier
             .size(size)
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(7.dp))
             .background(CardBackgroundElevated)
-            .border(BorderStroke(1.dp, CardBorderSubtle), shape = RoundedCornerShape(8.dp))
+            .border(BorderStroke(1.dp, CardBorderSubtle), shape = RoundedCornerShape(7.dp))
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -130,7 +130,7 @@ fun GlassIconButton(
             imageVector = icon,
             contentDescription = contentDescription,
             tint = tint,
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier.size(18.dp)
         )
     }
 }
@@ -148,14 +148,14 @@ fun StatusBadge(
 
     GlassCard(
         modifier = modifier,
-        shape = RoundedCornerShape(10.dp),
+        shape = RoundedCornerShape(8.dp),
         backgroundColor = CardBackground,
         borderColor = if (isConnected) StatusActive.copy(alpha = 0.35f) else CardBorderSubtle
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 14.dp),
+                .padding(horizontal = 14.dp, vertical = 9.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -165,28 +165,28 @@ fun StatusBadge(
                 // Status Indicator Dot
                 Box(
                     modifier = Modifier
-                        .size(10.dp)
+                        .size(8.dp)
                         .clip(CircleShape)
                         .background(dotColor)
                 )
 
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(10.dp))
 
                 Column {
                     Text(
                         text = stringResource(R.string.system_status).uppercase(),
                         color = TextMuted,
-                        fontSize = 11.sp,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.SemiBold,
                         letterSpacing = 0.5.sp
                     )
-                    Spacer(modifier = Modifier.height(2.dp))
+                    Spacer(modifier = Modifier.height(1.dp))
                     Text(
                         text = statusText,
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.SemiBold,
                             color = TextPrimary,
-                            fontSize = 15.sp
+                            fontSize = 13.5.sp
                         )
                     )
                 }
@@ -195,21 +195,21 @@ fun StatusBadge(
             // Clean State Pill Badge
             Box(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(6.dp))
+                    .clip(RoundedCornerShape(5.dp))
                     .background(if (isConnected) StatusActiveSubtle else CardBackgroundElevated)
                     .border(
                         BorderStroke(
                             1.dp,
                             if (isConnected) StatusActive.copy(alpha = 0.4f) else CardBorderSubtle
                         ),
-                        RoundedCornerShape(6.dp)
+                        RoundedCornerShape(5.dp)
                     )
-                    .padding(horizontal = 10.dp, vertical = 4.dp)
+                    .padding(horizontal = 8.dp, vertical = 3.dp)
             ) {
                 Text(
                     text = if (isConnected) "LIVE" else "IDLE",
                     color = if (isConnected) StatusActive else TextSecondary,
-                    fontSize = 11.sp,
+                    fontSize = 10.5.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 0.5.sp
                 )
