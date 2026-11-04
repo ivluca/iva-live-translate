@@ -240,20 +240,13 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = stringResource(R.string.dual_subtitles),
-                                fontWeight = FontWeight.SemiBold,
-                                color = TextPrimary,
-                                fontSize = 13.5.sp
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(
-                                text = stringResource(R.string.dual_subtitles_desc),
-                                color = TextMuted,
-                                fontSize = 11.5.sp
-                            )
-                        }
+                        Text(
+                            text = stringResource(R.string.dual_subtitles),
+                            fontWeight = FontWeight.SemiBold,
+                            color = TextPrimary,
+                            fontSize = 13.5.sp,
+                            modifier = Modifier.weight(1f)
+                        )
 
                         Switch(
                             checked = showDualSubtitles,
@@ -293,19 +286,12 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
 
                             Spacer(modifier = Modifier.width(10.dp))
 
-                            Column {
-                                Text(
-                                    text = stringResource(R.string.dubbing_mode),
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = TextPrimary,
-                                    fontSize = 13.5.sp
-                                )
-                                Text(
-                                    text = "Choose audio, subtitles, or both",
-                                    color = TextMuted,
-                                    fontSize = 11.sp
-                                )
-                            }
+                            Text(
+                                text = stringResource(R.string.dubbing_mode),
+                                fontWeight = FontWeight.SemiBold,
+                                color = TextPrimary,
+                                fontSize = 13.5.sp
+                            )
                         }
 
                         Spacer(modifier = Modifier.height(8.dp))
