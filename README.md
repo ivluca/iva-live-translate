@@ -74,139 +74,36 @@ Voice personas have been placed directly on the main dashboard for instant switc
 
 ---
 
-## 🧠 System Architecture & Workflow
-
-```mermaid
-flowchart TD
-    subgraph Capture["📱 1. Internal Audio Capture"]
-        APP["Active Media App<br/><i>(YouTube / Netflix / Spotify / Web)</i>"]
-        MP["MediaProjection API<br/><code>AudioPlaybackCaptureConfiguration</code>"]
-        REC["AudioRecord Engine<br/><code>16kHz Mono 16-bit PCM (1280 bytes/chunk)</code>"]
-        APP -->|"Raw System Audio"| MP
-        MP -->|"PCM Bytes"| REC
-    end
-
-    subgraph Service["⚡ 2. Core Service & Streaming Engine"]
-        FS["AudioDubbingForegroundService<br/><i>(Persistent Lifecycle & State Sync)</i>"]
-        WS["OkHttp WebSocket Client<br/><code>BidiGenerateContent Protocol</code>"]
-        MIX["Dual Audio Mixer & Ducking<br/><i>(Software Logarithmic Scaling)</i>"]
-        REC -->|"16kHz PCM Chunks"| FS
-        FS -->|"RealtimeInput (Upstream)"| WS
-        FS -.->|"Volume Control"| MIX
-    end
-
-    subgraph Cloud["☁️ 3. Google Gemini Live AI"]
-        GEMINI["<b>Gemini Live Translate Engine</b><br/><code>gemini-3.5-live-translate-preview</code><br/><i>Direct Speech-to-Speech & Transcripts</i>"]
-        WS <-->|"Bi-directional Full-Duplex WebSocket"| GEMINI
-    end
-
-    subgraph Playback["🔊 4. Low-Latency Audio Playback"]
-        AT["Low-Latency AudioTrack (24kHz Mono 16-bit PCM)<br/><i>STREAM Mode</i>"]
-        OUT["Device Speaker / Earphones 🎧"]
-        WS -->|"Downstream 24kHz PCM"| AT
-        AT -->|"Natural Dubbed Voice"| OUT
-    end
-
-    subgraph Controls["🎛️ 5. Modern UI & Overlays"]
-        UI["MainScreen Dashboard<br/><i>(Voice Personas & Dual Mixer)</i>"]
-        WIDGET["Floating Overlay Widget<br/><i>(👆 Double-Tap Gesture & Haptics)</i>"]
-        SUB["Dual Live Subtitles Overlay<br/><i>(Bilingual Subtitle Capsule)</i>"]
-        WS -->|"Transcript Events"| SUB
-        UI <-->|"StateFlow Repository"| FS
-        WIDGET <-->|"Pause/Resume Control"| FS
-    end
-
-    classDef capture fill:#1a1a2e,stroke:#0f3460,stroke-width:2px,color:#ffffff;
-    classDef service fill:#16213e,stroke:#e94560,stroke-width:2px,color:#ffffff;
-    classDef cloud fill:#0f3460,stroke:#533483,stroke-width:2px,color:#ffffff;
-    classDef playback fill:#2c003e,stroke:#c70039,stroke-width:2px,color:#ffffff;
-    classDef controls fill:#1a1c23,stroke:#e72234,stroke-width:2px,color:#ffffff;
-
-    class APP,MP,REC capture;
-    class FS,WS,MIX service;
-    class GEMINI cloud;
-    class AT,OUT playback;
-    class UI,WIDGET,SUB controls;
-```
-
-### Core Audio Invariants:
-- **Audio Capture:** 16,000 Hz, 16-bit Mono PCM, 1280 bytes per chunk (~40ms).
-- **Audio Playback:** 24,000 Hz, 16-bit Mono PCM via `AudioTrack` STREAM mode.
-- **AI Model:** `gemini-3.5-live-translate-preview` via Google Live Bidi WebSocket endpoint.
-- **Minimum OS:** Android 10.0 (API level 29) required for internal audio playback capture.
-
----
-
 ## 🚀 Getting Started
 
 ### Prerequisites
-1. **Android Device:** Android 10.0 (API 29) or newer.
-2. **Gemini API Key:** A free API key from [Google AI Studio](https://aistudio.google.com/app/apikey).
+- Android 10.0+ (API 29+)
+- Free Gemini API Key from [Google AI Studio](https://aistudio.google.com/app/apikey)
 
-### Configuration & Usage
-1. Open **iva**, tap the ⚙️ **Settings** icon in the top corner.
-2. Enter your **Gemini API Key** and tap **Save Settings**.
-3. On the Main Screen:
-   - Select your preferred narrator in **AI Voice Persona**.
-   - Balance the AI dubbed voice and original video audio with the **Dual Audio Mixer**.
-   - Enable the **Floating Widget** switch if you want multitasking overlay controls.
-4. Tap **Start Translate** and grant the screen capture/audio permission prompt.
+### Quick Setup & Build
+1. Open **iva**, tap ⚙️ **Settings**, and paste your **Gemini API Key**.
+2. Select your **AI Voice Persona** and adjust volume in **Dual Audio Mixer**.
+3. Tap **Start Translate** to begin live dubbing.
 
----
-
-## 🛠️ Build from Source
-
-### Requirements:
-- JDK 17 or higher
-- Android SDK (API 34, Android Build Tools)
-
-### Build Commands:
 ```bash
-# Clone repository
-git clone https://github.com/navidseyedain/ALAD-Mobile.git
-cd ALAD-Mobile
-
-# Or clone from your custom repository fork:
-# git clone <your-repo-url>
-
 # Build Debug APK
 ./gradlew assembleDebug
-
-# Install directly to a connected Android device via ADB
-./gradlew installDebug
 ```
 
-The compiled APK will be located at:
-`app/build/outputs/apk/debug/app-debug.apk`
+---
+
+## 📖 Documentation & Upstream Details
+
+This project is a customized fork focused on Vietnamese live dubbing. For comprehensive architecture breakdowns, in-depth audio pipeline details, and troubleshooting guides, please refer to the original author's repository:
+
+- 🔗 **Original Upstream Repository:** [navidseyedain/ALAD-Mobile](https://github.com/navidseyedain/ALAD-Mobile)
+- 📚 **Developer Wiki:** Technical notes are also available in the local [`wiki/`](wiki/README.md) directory.
 
 ---
 
-## 📚 Technical Documentation (Developer Wiki)
-
-For in-depth architectural and implementation details, refer to the [`wiki/`](wiki/README.md) directory:
-- [**System Architecture**](wiki/architecture.md) - Comprehensive layer breakdown and component lifecycle.
-- [**Audio Pipeline**](wiki/audio-pipeline.md) - Capture mechanics, AudioTrack playback, and DSP mixing.
-- [**Gemini Live WebSocket Protocol**](wiki/gemini-live-websocket.md) - BidiGenerateContent frames, payloads, and reconnect strategies.
-- [**Foreground Service & Floating Overlay**](wiki/foreground-and-overlay.md) - Background execution, MediaProjection capture activity, and WindowManager overlay compose views.
-- [**State & Data Management**](wiki/data-and-state.md) - DubbingSessionRepository StateFlows and DataStore preferences.
-
----
-
-## 🔧 Troubleshooting
-
-| Issue | Cause | Solution |
-|---|---|---|
-| **No translation audio** | Media app is not currently playing sound or Gemini API quota is exhausted. | Ensure media is playing in the background app and verify API quota in Google AI Studio. |
-| **WebSocket connection fails** | Invalid API Key or network blocks WebSockets. | Double-check API Key in Settings or check internet connection / VPN. |
-| **Dubbing stops when switching apps** | Android battery optimization terminated the background service. | Go to *App Info > Battery > Unrestricted*. |
-| **Audio not capturing in apps like Netflix** | Protected by DRM or system phone call policy. | Android OS strictly blocks recording for DRM-protected streams and active phone calls. |
-
----
-
-## 📜 Credits & License
+## 📜 License & Credits
 
 Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for details.
 
-### Acknowledgments:
-- **Upstream Project:** [**ALAD-Mobile**](https://github.com/navidseyedain/ALAD-Mobile) created by [**Navid Seyedain**](https://github.com/navidseyedain).
-- **Google DeepMind & Google AI Studio:** For Gemini Live streaming architecture and API access.
+- **Original Creator:** [Navid Seyedain](https://github.com/navidseyedain) ([ALAD-Mobile](https://github.com/navidseyedain/ALAD-Mobile))
+- **Powered by:** Google DeepMind & Google AI Studio (Gemini 3.5 Live Translate)
