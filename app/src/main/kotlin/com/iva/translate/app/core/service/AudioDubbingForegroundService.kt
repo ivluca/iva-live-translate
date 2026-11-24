@@ -367,7 +367,7 @@ class AudioDubbingForegroundService : Service() {
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("iva Live Translate")
+            .setContentTitle("iva")
             .setContentText("Connected and translating...")
             .setSmallIcon(android.R.drawable.ic_btn_speak_now)
             .setPriority(NotificationCompat.PRIORITY_LOW)
