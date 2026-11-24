@@ -80,13 +80,20 @@ object DubbingSessionRepository {
 
         silenceJob?.cancel()
 
+        val current = _liveSubtitleText.value
         if (isNewTurn) {
             isNewTurn = false
+            // Ignore if the new turn is just an identical hallucinated repetition of the previous phrase
+            if (isRepeatedPhrase(current, trimmed) && trimmed.length <= 40) {
+                return
+            }
             _liveSubtitleText.value = trimmed
             return
         }
 
-        val current = _liveSubtitleText.value
+        if (isRepeatedPhrase(current, trimmed)) {
+            return
+        }
         val updated = if (current.isEmpty()) {
             trimmed
         } else if (trimmed.startsWith(current, ignoreCase = true)) {
@@ -115,13 +122,19 @@ object DubbingSessionRepository {
 
         silenceJob?.cancel()
 
+        val current = _liveSourceSubtitleText.value
         if (isNewSourceTurn) {
             isNewSourceTurn = false
+            if (isRepeatedPhrase(current, trimmed) && trimmed.length <= 40) {
+                return
+            }
             _liveSourceSubtitleText.value = trimmed
             return
         }
 
-        val current = _liveSourceSubtitleText.value
+        if (isRepeatedPhrase(current, trimmed)) {
+            return
+        }
         val updated = if (current.isEmpty()) {
             trimmed
         } else if (trimmed.startsWith(current, ignoreCase = true)) {
@@ -142,6 +155,21 @@ object DubbingSessionRepository {
         } else {
             updated
         }
+    }
+
+    private fun normalizePhrase(text: String): String {
+        return text.lowercase()
+            .replace(Regex("[.,!?;:\"'…\\-]+"), " ")
+            .replace(Regex("\\s+"), " ")
+            .trim()
+    }
+
+    private fun isRepeatedPhrase(current: String, incoming: String): Boolean {
+        if (current.isEmpty() || incoming.isEmpty()) return false
+        val normCurrent = normalizePhrase(current)
+        val normIncoming = normalizePhrase(incoming)
+        if (normIncoming.isEmpty()) return true
+        return normCurrent == normIncoming || normCurrent.endsWith(" $normIncoming")
     }
 
     fun onTurnComplete() {

@@ -273,9 +273,26 @@ class AudioDubbingForegroundService : Service() {
                 audioCaptureManager = AudioCaptureManager()
                 val appUid = applicationInfo.uid
 
+                // Silence gate (VAD) state: avoids streaming endless silence/ambient noise after speech pauses,
+                // preventing Gemini Live from hallucinating or looping the last translated phrase ("đúng vậy, đúng vậy...").
+                val speechRmsThreshold = 180f // ~ -45 dBFS threshold for active speech vs quiet pause/hum
+                val hangoverMaxChunks = 15    // 15 chunks * 40ms = 600ms smooth trailing silence sent after speech stops
+                var hangoverChunksRemaining = 0
+                val silentChunk = ByteArray(AudioCaptureManager.CHUNK_SIZE)
+
                 mediaProjection?.let { projection ->
                     audioCaptureManager?.startCapture(projection, appUid) { pcmData ->
-                        webSocketManager?.sendAudioData(pcmData)
+                        val rms = AudioUtils.calculateRms(pcmData)
+
+                        if (rms >= speechRmsThreshold) {
+                            hangoverChunksRemaining = hangoverMaxChunks
+                            webSocketManager?.sendAudioData(pcmData)
+                        } else if (hangoverChunksRemaining > 0) {
+                            hangoverChunksRemaining--
+                            // Send clean zeroed PCM during trailing hangover so Gemini's server-side VAD
+                            // cleanly closes the turn without being re-triggered by low-level background noise.
+                            webSocketManager?.sendAudioData(silentChunk)
+                        }
 
                         // Process RMS and smoothed amplitude via decoupled AudioUtils
                         val currentAmp = DubbingSessionRepository.audioAmplitude.value

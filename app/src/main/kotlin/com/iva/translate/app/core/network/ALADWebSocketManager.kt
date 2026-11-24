@@ -188,7 +188,7 @@ class ALADWebSocketManager(private val client: OkHttpClient) {
 
                 put("systemInstruction", JSONObject().apply {
                     put("parts", JSONArray().put(JSONObject().apply {
-                        put("text", "You are an expert real-time AI live audio translator. $dialectInstruction $voicePrompt Maintain natural pacing and high clarity.")
+                        put("text", "You are an expert real-time AI live audio translator. $dialectInstruction $voicePrompt Maintain natural pacing and high clarity. CRITICAL RULES: 1) Translate each spoken phrase or sentence ONLY ONCE. 2) Never repeat or loop a previous translation when the speaker pauses, stays silent, or during background noise/music. 3) If there is no new intelligible speech, remain completely silent and output nothing.")
                     }))
                 })
 
