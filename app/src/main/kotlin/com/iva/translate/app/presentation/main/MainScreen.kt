@@ -24,9 +24,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.VolumeOff
-import androidx.compose.material.icons.automirrored.filled.VolumeUp
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -315,7 +315,7 @@ fun MainScreen(
                                     fontWeight = FontWeight.Medium
                                 )
                                 Icon(
-                                    imageVector = if (langExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                                    imageVector = if (langExpanded) AppIcons.ArrowDropUp else Icons.Default.ArrowDropDown,
                                     contentDescription = null,
                                     tint = if (langExpanded) BrandPrimary else TextMuted,
                                     modifier = Modifier.size(20.dp)
@@ -391,7 +391,7 @@ fun MainScreen(
                                         fontWeight = FontWeight.Medium
                                     )
                                     Icon(
-                                        imageVector = if (dialectExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                                        imageVector = if (dialectExpanded) AppIcons.ArrowDropUp else Icons.Default.ArrowDropDown,
                                         contentDescription = null,
                                         tint = if (dialectExpanded) BrandPrimary else TextMuted,
                                         modifier = Modifier.size(20.dp)
@@ -450,7 +450,7 @@ fun MainScreen(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.RecordVoiceOver,
+                                        imageVector = AppIcons.RecordVoiceOver,
                                         contentDescription = null,
                                         tint = BrandPrimary,
                                         modifier = Modifier.size(15.dp)
@@ -539,7 +539,7 @@ fun MainScreen(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Tune,
+                                imageVector = AppIcons.Tune,
                                 contentDescription = null,
                                 tint = BrandPrimary,
                                 modifier = Modifier.size(15.dp)
@@ -588,7 +588,7 @@ fun MainScreen(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
-                                        imageVector = if (isDubbingMuted) Icons.AutoMirrored.Filled.VolumeOff else Icons.AutoMirrored.Filled.VolumeUp,
+                                        imageVector = if (isDubbingMuted) AppIcons.VolumeOff else AppIcons.VolumeUp,
                                         contentDescription = "Mute AI Voice",
                                         tint = if (isDubbingMuted) DangerRed else TextPrimary,
                                         modifier = Modifier.size(12.dp)
@@ -638,7 +638,7 @@ fun MainScreen(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
-                                        imageVector = if (isOriginalMuted) Icons.AutoMirrored.Filled.VolumeOff else Icons.AutoMirrored.Filled.VolumeUp,
+                                        imageVector = if (isOriginalMuted) AppIcons.VolumeOff else AppIcons.VolumeUp,
                                         contentDescription = "Mute Original Audio",
                                         tint = if (isOriginalMuted) DangerRed else TextPrimary,
                                         modifier = Modifier.size(12.dp)
@@ -857,7 +857,7 @@ fun StartStopTranslateButton(
             horizontalArrangement = Arrangement.Center
         ) {
             Icon(
-                imageVector = if (isConnected) Icons.Default.Stop else Icons.Default.PlayArrow,
+                imageVector = if (isConnected) AppIcons.Stop else Icons.Default.PlayArrow,
                 contentDescription = null,
                 tint = Color.White,
                 modifier = Modifier.size(20.dp)

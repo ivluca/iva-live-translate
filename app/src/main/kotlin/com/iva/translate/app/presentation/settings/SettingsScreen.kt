@@ -12,9 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
-import androidx.compose.material.icons.automirrored.filled.VolumeUp
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -110,7 +108,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Key,
+                                    imageVector = AppIcons.Key,
                                     contentDescription = null,
                                     tint = BrandPrimary,
                                     modifier = Modifier.size(15.dp)
@@ -179,7 +177,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                                     modifier = Modifier.size(24.dp)
                                 ) {
                                     Icon(
-                                        imageVector = if (apiKeyVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                        imageVector = if (apiKeyVisible) AppIcons.VisibilityOff else AppIcons.Visibility,
                                         contentDescription = if (apiKeyVisible) stringResource(R.string.hide) else stringResource(R.string.show),
                                         tint = if (apiKeyVisible) BrandPrimary else TextMuted,
                                         modifier = Modifier.size(16.dp)
@@ -217,7 +215,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                                 )
 
                                 Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                                    imageVector = AppIcons.OpenInNew,
                                     contentDescription = null,
                                     tint = BrandPrimary,
                                     modifier = Modifier.size(14.dp)
@@ -277,7 +275,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Tune,
+                                    imageVector = AppIcons.Tune,
                                     contentDescription = null,
                                     tint = BrandPrimary,
                                     modifier = Modifier.size(15.dp)
@@ -297,9 +295,9 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                         Spacer(modifier = Modifier.height(8.dp))
 
                         val modes = listOf(
-                            Triple(UserPreferencesRepository.MODE_HYBRID, stringResource(R.string.mode_hybrid), Icons.Default.GraphicEq),
-                            Triple(UserPreferencesRepository.MODE_AUDIO_ONLY, stringResource(R.string.mode_audio_only), Icons.AutoMirrored.Filled.VolumeUp),
-                            Triple(UserPreferencesRepository.MODE_SUBTITLE_ONLY, stringResource(R.string.mode_subtitle_only), Icons.Default.Subtitles)
+                            Triple(UserPreferencesRepository.MODE_HYBRID, stringResource(R.string.mode_hybrid), AppIcons.GraphicEq),
+                            Triple(UserPreferencesRepository.MODE_AUDIO_ONLY, stringResource(R.string.mode_audio_only), AppIcons.VolumeUp),
+                            Triple(UserPreferencesRepository.MODE_SUBTITLE_ONLY, stringResource(R.string.mode_subtitle_only), AppIcons.Subtitles)
                         )
 
                         modes.forEach { (modeId, modeLabel, icon) ->
@@ -394,7 +392,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Save,
+                            imageVector = AppIcons.Save,
                             contentDescription = null,
                             tint = Color.White,
                             modifier = Modifier.size(18.dp)
