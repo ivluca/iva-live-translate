@@ -1,10 +1,10 @@
 package com.iva.translate.app.presentation.main
 
 val supportedLanguages = listOf(
-    "vi" to "Tiếng Việt (Vietnamese)",
-    "en" to "English (Tiếng Anh)",
-    "de" to "Deutsch (Tiếng Đức)",
-    "ja" to "日本語 (Tiếng Nhật)"
+    "vi" to "Tiếng Việt",
+    "en" to "English",
+    "de" to "Deutsch",
+    "ja" to "日本語"
 )
 
 data class DialectOption(
