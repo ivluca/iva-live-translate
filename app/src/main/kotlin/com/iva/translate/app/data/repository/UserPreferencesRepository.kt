@@ -43,8 +43,11 @@ class UserPreferencesRepository(private val context: Context) {
     val wsUrlFlow: Flow<String> = context.dataStore.data.map { it[WS_URL] ?: "ws://192.168.1.100:8000/ws/dub" }.distinctUntilChanged()
     val apiKeyFlow: Flow<String> = context.dataStore.data.map { it[API_KEY] ?: "" }.distinctUntilChanged()
     val sourceLangFlow: Flow<String> = context.dataStore.data.map { it[SOURCE_LANG] ?: "en" }.distinctUntilChanged()
-    val targetLangFlow: Flow<String> = context.dataStore.data.map { "vi" }.distinctUntilChanged()
-    val targetDialectFlow: Flow<String> = context.dataStore.data.map { "vi-VN-N" }.distinctUntilChanged()
+    val targetLangFlow: Flow<String> = context.dataStore.data.map { prefs ->
+        val saved = prefs[TARGET_LANG] ?: "vi"
+        if (saved in listOf("vi", "en", "de", "ja")) saved else "vi"
+    }.distinctUntilChanged()
+    val targetDialectFlow: Flow<String> = context.dataStore.data.map { "" }.distinctUntilChanged()
     val volumeRatioFlow: Flow<Float> = context.dataStore.data.map { it[VOLUME_RATIO] ?: 1.0f }.distinctUntilChanged()
     val isDubbingMutedFlow: Flow<Boolean> = context.dataStore.data.map { it[IS_DUBBING_MUTED] ?: false }.distinctUntilChanged()
     val originalVolumeFlow: Flow<Float> = context.dataStore.data.map { it[ORIGINAL_VOLUME] ?: 0.30f }.distinctUntilChanged()

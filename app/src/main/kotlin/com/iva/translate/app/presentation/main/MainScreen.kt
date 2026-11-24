@@ -70,7 +70,6 @@ fun MainScreen(
     val selectedVoice by viewModel.voicePersona.collectAsState()
     val selectedMode by viewModel.dubbingMode.collectAsState()
     val targetLang by viewModel.targetLang.collectAsState()
-    val targetDialect by viewModel.targetDialect.collectAsState()
 
     val dubbingVol by viewModel.dubbingVolume.collectAsState()
     val isDubbingMuted by viewModel.isDubbingMuted.collectAsState()
@@ -113,21 +112,13 @@ fun MainScreen(
 
                         Spacer(modifier = Modifier.width(10.dp))
 
-                        Column {
-                            Text(
-                                text = "iva",
-                                fontWeight = FontWeight.Bold,
-                                color = TextPrimary,
-                                fontSize = 16.sp,
-                                letterSpacing = 0.5.sp
-                            )
-                            Text(
-                                text = "Live Translate Audio",
-                                color = TextMuted,
-                                fontSize = 10.5.sp,
-                                fontWeight = FontWeight.Normal
-                            )
-                        }
+                        Text(
+                            text = "iva",
+                            fontWeight = FontWeight.Bold,
+                            color = TextPrimary,
+                            fontSize = 16.sp,
+                            letterSpacing = 0.5.sp
+                        )
                     }
 
                     Row(
@@ -242,14 +233,9 @@ fun MainScreen(
                     }
                 }
 
-                // 4. Target Language & Dialect Selection Card
+                // 4. Target Language Selection Card (Accent is Auto-Targeted)
                 var langExpanded by remember { mutableStateOf(false) }
-                var dialectExpanded by remember { mutableStateOf(false) }
                 val displayLang = supportedLanguages.find { it.first == targetLang }?.second ?: targetLang
-
-                val availableDialects = supportedDialects[targetLang.split("-")[0]] ?: emptyList()
-                val displayDialect = availableDialects.find { it.code.equals(targetDialect, ignoreCase = true) }?.displayName
-                    ?: stringResource(R.string.standard_dialect)
 
                 GlassCard(
                     modifier = Modifier.fillMaxWidth(),
@@ -347,83 +333,6 @@ fun MainScreen(
                                         },
                                         modifier = Modifier.fillMaxWidth()
                                     )
-                                }
-                            }
-                        }
-
-                        // Compact Dialect / Accent Selector
-                        if (availableDialects.isNotEmpty()) {
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Text(
-                                text = stringResource(R.string.target_dialect),
-                                color = TextSecondary,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Medium
-                            )
-
-                            Spacer(modifier = Modifier.height(4.dp))
-
-                            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                                val menuWidth = maxWidth
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(38.dp)
-                                        .clip(RoundedCornerShape(7.dp))
-                                        .background(CardBackgroundElevated)
-                                        .border(
-                                            BorderStroke(
-                                                1.dp,
-                                                if (dialectExpanded) BrandPrimary else CardBorderSubtle
-                                            ),
-                                            RoundedCornerShape(7.dp)
-                                        )
-                                        .clickable { dialectExpanded = !dialectExpanded }
-                                        .padding(horizontal = 12.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Text(
-                                        text = displayDialect,
-                                        color = TextPrimary,
-                                        fontSize = 13.sp,
-                                        fontWeight = FontWeight.Medium
-                                    )
-                                    Icon(
-                                        imageVector = if (dialectExpanded) AppIcons.ArrowDropUp else Icons.Default.ArrowDropDown,
-                                        contentDescription = null,
-                                        tint = if (dialectExpanded) BrandPrimary else TextMuted,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                }
-
-                                DropdownMenu(
-                                    expanded = dialectExpanded,
-                                    onDismissRequest = { dialectExpanded = false },
-                                    modifier = Modifier
-                                        .width(menuWidth)
-                                        .background(CardBackgroundElevated)
-                                        .border(1.dp, CardBorderSubtle, RoundedCornerShape(8.dp))
-                                ) {
-                                    availableDialects.forEach { dialect ->
-                                        DropdownMenuItem(
-                                            text = {
-                                                Text(
-                                                    dialect.displayName,
-                                                    color = if (dialect.code == targetDialect) BrandPrimary else TextPrimary,
-                                                    fontWeight = if (dialect.code == targetDialect) FontWeight.Bold else FontWeight.Normal,
-                                                    fontSize = 13.sp,
-                                                    modifier = Modifier.fillMaxWidth()
-                                                )
-                                            },
-                                            onClick = {
-                                                viewModel.updateTargetDialect(dialect.code)
-                                                dialectExpanded = false
-                                            },
-                                            modifier = Modifier.fillMaxWidth()
-                                        )
-                                    }
                                 }
                             }
                         }

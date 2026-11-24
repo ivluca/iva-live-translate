@@ -85,8 +85,7 @@ class MainViewModel(private val repository: UserPreferencesRepository) : ViewMod
         viewModelScope.launch(exceptionHandler) {
             try {
                 repository.updateTargetLang(lang)
-                // Clear dialect when language changes to standard
-                repository.updateTargetDialect(if (lang == "vi") "vi-VN-N" else "")
+                repository.updateTargetDialect("")
             } catch (e: Exception) {
                 Log.e("MainViewModel", "Failed to update target language", e)
             }

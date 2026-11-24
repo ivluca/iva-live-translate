@@ -152,9 +152,8 @@ class ALADWebSocketManager(private val client: OkHttpClient) {
     private fun sendGeminiSetup(targetLang: String, voicePersona: String, dubbingMode: String, targetDialect: String) {
         val targetLangCode = targetLang.split("-")[0]
 
-        val dialectInstruction = com.iva.translate.app.presentation.main.supportedDialects[targetLangCode]
-            ?.find { it.code.equals(targetDialect, ignoreCase = true) }
-            ?.promptInstruction ?: com.iva.translate.app.presentation.main.supportedDialects[targetLangCode]?.firstOrNull()?.promptInstruction ?: if (targetDialect.isNotEmpty()) "Speak and translate in $targetDialect dialect." else ""
+        val dialectInstruction = com.iva.translate.app.presentation.main.autoAccentInstructions[targetLangCode]
+            ?: "Speak in a natural, clear, standard native accent for $targetLangCode."
 
         val voicePrompt = when (voicePersona) {
             "Aoede" -> "Speak strictly with a warm, natural, gentle feminine voice. Do not mimic or adapt to the source speaker's pitch or acoustic timbre."
