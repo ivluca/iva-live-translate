@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,6 +23,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -31,6 +33,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.iva.translate.app.R
 import com.iva.translate.app.data.repository.UserPreferencesRepository
+import com.iva.translate.app.presentation.main.SleekVolumeSlider
+import com.iva.translate.app.presentation.main.supportedLanguages
 import com.iva.translate.app.ui.theme.*
 import kotlinx.coroutines.launch
 
@@ -42,6 +46,16 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
     val apiKey by viewModel.userApiKey.collectAsState()
     val selectedMode by viewModel.dubbingMode.collectAsState()
     val showDualSubtitles by viewModel.showDualSubtitles.collectAsState()
+    val targetLang by viewModel.targetLang.collectAsState()
+    val selectedVoice by viewModel.voicePersona.collectAsState()
+    val dubbingVol by viewModel.dubbingVolume.collectAsState()
+    val isDubbingMuted by viewModel.isDubbingMuted.collectAsState()
+    val originalVol by viewModel.originalVolumeRatio.collectAsState()
+    val isOriginalMuted by viewModel.isOriginalMuted.collectAsState()
+
+    val haptic = LocalHapticFeedback.current
+    var langExpanded by remember { mutableStateOf(false) }
+    val displayLang = supportedLanguages.find { it.first == targetLang }?.second ?: targetLang
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -89,7 +103,335 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
                     .padding(horizontal = 16.dp, vertical = 4.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                // 1. API Key Configuration Card
+                // 1. Target Language Selection Card
+                GlassCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(R.string.target_dubbing_language),
+                                color = TextPrimary,
+                                fontSize = 13.5.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(BrandPrimarySubtle)
+                                    .padding(horizontal = 7.dp, vertical = 2.dp)
+                            ) {
+                                Text(
+                                    text = targetLang.uppercase(),
+                                    color = BrandPrimary,
+                                    fontSize = 10.5.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Compact Language Select Box
+                        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                            val menuWidth = maxWidth
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(38.dp)
+                                    .clip(RoundedCornerShape(7.dp))
+                                    .background(CardBackgroundElevated)
+                                    .border(
+                                        BorderStroke(
+                                            1.dp,
+                                            if (langExpanded) BrandPrimary else CardBorderSubtle
+                                        ),
+                                        RoundedCornerShape(7.dp)
+                                    )
+                                    .clickable { langExpanded = !langExpanded }
+                                    .padding(horizontal = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = displayLang,
+                                    color = TextPrimary,
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Icon(
+                                    imageVector = if (langExpanded) AppIcons.ArrowDropUp else Icons.Default.ArrowDropDown,
+                                    contentDescription = null,
+                                    tint = if (langExpanded) BrandPrimary else TextMuted,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+
+                            DropdownMenu(
+                                expanded = langExpanded,
+                                onDismissRequest = { langExpanded = false },
+                                modifier = Modifier
+                                    .width(menuWidth)
+                                    .background(CardBackgroundElevated)
+                                    .border(1.dp, CardBorderSubtle, RoundedCornerShape(8.dp))
+                            ) {
+                                supportedLanguages.forEach { (code, name) ->
+                                    DropdownMenuItem(
+                                        text = {
+                                            Text(
+                                                name,
+                                                color = if (code == targetLang) BrandPrimary else TextPrimary,
+                                                fontWeight = if (code == targetLang) FontWeight.Bold else FontWeight.Normal,
+                                                fontSize = 13.sp,
+                                                modifier = Modifier.fillMaxWidth()
+                                            )
+                                        },
+                                        onClick = {
+                                            viewModel.updateTargetLang(code)
+                                            langExpanded = false
+                                        },
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // 2. AI Voice Persona Selection Card
+                GlassCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(BrandPrimarySubtle),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = AppIcons.RecordVoiceOver,
+                                        contentDescription = null,
+                                        tint = BrandPrimary,
+                                        modifier = Modifier.size(15.dp)
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.width(8.dp))
+
+                                Text(
+                                    text = stringResource(R.string.voice_persona),
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = TextPrimary,
+                                    fontSize = 13.5.sp
+                                )
+                            }
+
+                            Text(
+                                text = "Active: $selectedVoice",
+                                color = BrandPrimary,
+                                fontSize = 11.5.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        val voiceRows = listOf(
+                            listOf("Aoede", "Kore", "Zephyr"),
+                            listOf("Puck", "Charon", "Fenrir")
+                        )
+
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            voiceRows.forEach { rowVoices ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    rowVoices.forEach { voiceId ->
+                                        val isSelected = selectedVoice == voiceId
+                                        Box(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .height(34.dp)
+                                                .clip(RoundedCornerShape(6.dp))
+                                                .background(if (isSelected) BrandPrimarySubtle else CardBackgroundElevated)
+                                                .border(
+                                                    BorderStroke(
+                                                        1.dp,
+                                                        if (isSelected) BrandPrimary else CardBorderSubtle
+                                                    ),
+                                                    shape = RoundedCornerShape(6.dp)
+                                                )
+                                                .clickable {
+                                                    haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                                                    viewModel.updateVoicePersona(voiceId)
+                                                },
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = voiceId,
+                                                color = if (isSelected) BrandPrimary else TextSecondary,
+                                                fontSize = 12.sp,
+                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // 3. Dual Audio Mixer Card
+                GlassCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Icon(
+                                imageVector = AppIcons.Tune,
+                                contentDescription = null,
+                                tint = BrandPrimary,
+                                modifier = Modifier.size(15.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = stringResource(R.string.audio_mixer),
+                                color = TextPrimary,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 13.sp
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        // A. Dubbed AI Voice Volume Slider + Mute
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = stringResource(R.string.dubbed_voice_volume),
+                                color = if (isDubbingMuted) TextMuted else TextSecondary,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = if (isDubbingMuted) "MUTED" else "${(dubbingVol * 100).toInt()}%",
+                                    color = if (isDubbingMuted) DangerRed else BrandPrimary,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .size(22.dp)
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(if (isDubbingMuted) DangerRedSubtle else CardBackgroundElevated)
+                                        .clickable {
+                                            haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                                            viewModel.toggleDubbingMute()
+                                        },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = if (isDubbingMuted) AppIcons.VolumeOff else AppIcons.VolumeUp,
+                                        contentDescription = "Mute AI Voice",
+                                        tint = if (isDubbingMuted) DangerRed else TextPrimary,
+                                        modifier = Modifier.size(12.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        SleekVolumeSlider(
+                            value = dubbingVol,
+                            onValueChange = { viewModel.setDubbingVolume(it) },
+                            activeColor = BrandPrimary
+                        )
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        // B. Original Media Audio Volume Slider + Mute
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = stringResource(R.string.original_media_volume),
+                                color = if (isOriginalMuted) TextMuted else TextSecondary,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = if (isOriginalMuted) "MUTED" else "${(originalVol * 100).toInt()}%",
+                                    color = if (isOriginalMuted) DangerRed else TextSecondary,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .size(22.dp)
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(if (isOriginalMuted) DangerRedSubtle else CardBackgroundElevated)
+                                        .clickable {
+                                            haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                                            viewModel.toggleOriginalMute()
+                                        },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = if (isOriginalMuted) AppIcons.VolumeOff else AppIcons.VolumeUp,
+                                        contentDescription = "Mute Original Audio",
+                                        tint = if (isOriginalMuted) DangerRed else TextPrimary,
+                                        modifier = Modifier.size(12.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        SleekVolumeSlider(
+                            value = originalVol,
+                            onValueChange = { viewModel.setOriginalVolumeRatio(it) },
+                            activeColor = TextSecondary
+                        )
+                    }
+                }
+
+                // 4. API Key Configuration Card
                 GlassCard(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp)

@@ -40,6 +40,8 @@ class AudioDubbingForegroundService : Service() {
 
         const val ACTION_START = "ACTION_START"
         const val ACTION_STOP = "ACTION_STOP"
+        const val ACTION_TOGGLE_MUTE = "ACTION_TOGGLE_MUTE"
+        const val ACTION_TOGGLE_SUBTITLES = "ACTION_TOGGLE_SUBTITLES"
         const val EXTRA_RESULT_CODE = "EXTRA_RESULT_CODE"
         const val EXTRA_RESULT_DATA = "EXTRA_RESULT_DATA"
         private const val TAG = "DubbingService"
@@ -94,6 +96,14 @@ class AudioDubbingForegroundService : Service() {
                 stopDubbing()
                 stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
+            }
+            ACTION_TOGGLE_MUTE -> {
+                DubbingSessionRepository.toggleDubbingMute()
+                updateNotification()
+            }
+            ACTION_TOGGLE_SUBTITLES -> {
+                DubbingSessionRepository.toggleSubtitleOverlayVisibility()
+                updateNotification()
             }
         }
 
@@ -268,6 +278,14 @@ class AudioDubbingForegroundService : Service() {
                             }
                         }
                     }
+
+                    // 6. Update notification when mute state or subtitle visibility changes
+                    launch {
+                        DubbingSessionRepository.isDubbingMuted.collect { updateNotification() }
+                    }
+                    launch {
+                        DubbingSessionRepository.isSubtitleOverlayVisible.collect { updateNotification() }
+                    }
                 }
 
                 audioCaptureManager = AudioCaptureManager()
@@ -359,21 +377,22 @@ class AudioDubbingForegroundService : Service() {
             this, 0, intent, android.app.PendingIntent.FLAG_IMMUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val stopIntent = Intent(this, AudioDubbingForegroundService::class.java).apply {
-            action = ACTION_STOP
-        }
-        val stopPendingIntent = android.app.PendingIntent.getService(
-            this, 1, stopIntent, android.app.PendingIntent.FLAG_IMMUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("iva")
-            .setContentText("Connected and translating...")
+            .setContentTitle("Live Translate")
+            .setContentText("Translating live audio...")
             .setSmallIcon(android.R.drawable.ic_btn_speak_now)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setContentIntent(pendingIntent)
-            .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Disconnect", stopPendingIntent)
             .setOngoing(true)
             .build()
+    }
+
+    private fun updateNotification() {
+        try {
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.notify(NOTIFICATION_ID, createNotification())
+        } catch (e: Exception) {
+            Log.e(TAG, "Error updating notification", e)
         }
+    }
 }

@@ -14,9 +14,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PlayArrow
@@ -33,6 +36,8 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.stringResource
@@ -46,6 +51,7 @@ import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.iva.translate.app.R
+import com.iva.translate.app.TransparentCaptureActivity
 import com.iva.translate.app.data.repository.DubbingSessionRepository
 import com.iva.translate.app.ui.theme.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -64,6 +70,7 @@ class OverlayWidgetService : LifecycleService() {
 
     private var controllerParams: WindowManager.LayoutParams? = null
     private var subtitleParams: WindowManager.LayoutParams? = null
+    private var isControllerViewAttached = false
     private var isSubtitleViewAttached = false
 
     private val savedStateRegistryOwner by lazy { ServiceSavedStateRegistryOwner(this) }
@@ -81,7 +88,7 @@ class OverlayWidgetService : LifecycleService() {
             WindowManager.LayoutParams.TYPE_PHONE
         }
 
-        // 1. Controller Pill Window Params (Top-left draggable)
+        // 1. Controller Capsule Window Params (Top-left draggable, ultra-compact)
         controllerParams = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
@@ -90,21 +97,8 @@ class OverlayWidgetService : LifecycleService() {
             PixelFormat.TRANSLUCENT
         ).apply {
             gravity = Gravity.TOP or Gravity.START
-            x = 24
-            y = 220
-        }
-
-        // 2. Subtitle Window Params (Bottom-center draggable)
-        subtitleParams = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            layoutFlag,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-            PixelFormat.TRANSLUCENT
-        ).apply {
-            gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
-            x = 0
-            y = 100
+            x = 30
+            y = 160
         }
 
         // Setup Controller ComposeView
@@ -120,18 +114,20 @@ class OverlayWidgetService : LifecycleService() {
                                 windowManager.updateViewLayout(controllerComposeView, p)
                             }
                         },
-                        onClose = { stopSelf() },
-                        onToggle = { isCurrentlyRunning ->
-                            if (isCurrentlyRunning) {
+                        onClose = {
+                            stopSelf()
+                        },
+                        onToggle = { isRunning ->
+                            if (isRunning) {
                                 val intent = Intent(this@OverlayWidgetService, AudioDubbingForegroundService::class.java).apply {
                                     action = AudioDubbingForegroundService.ACTION_STOP
                                 }
                                 startService(intent)
                             } else {
-                                val intent = Intent(this@OverlayWidgetService, com.iva.translate.app.TransparentCaptureActivity::class.java).apply {
+                                val captureIntent = Intent(this@OverlayWidgetService, TransparentCaptureActivity::class.java).apply {
                                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                 }
-                                startActivity(intent)
+                                startActivity(captureIntent)
                             }
                         }
                     )
@@ -141,6 +137,26 @@ class OverlayWidgetService : LifecycleService() {
         controllerComposeView.setViewTreeLifecycleOwner(this)
         controllerComposeView.setViewTreeSavedStateRegistryOwner(savedStateRegistryOwner)
         controllerComposeView.setViewTreeViewModelStoreOwner(viewModelStoreOwner)
+
+        try {
+            windowManager.addView(controllerComposeView, controllerParams)
+            isControllerViewAttached = true
+        } catch (e: Exception) {
+            android.util.Log.e("OverlayWidgetService", "Error initially attaching controller view", e)
+        }
+
+        // 2. Subtitle Window Params (Bottom-center draggable)
+        subtitleParams = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            layoutFlag,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            PixelFormat.TRANSLUCENT
+        ).apply {
+            gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+            x = 0
+            y = 100
+        }
 
         // Setup Subtitle ComposeView
         subtitleComposeView = ComposeView(this).apply {
@@ -167,8 +183,7 @@ class OverlayWidgetService : LifecycleService() {
         subtitleComposeView.setViewTreeSavedStateRegistryOwner(savedStateRegistryOwner)
         subtitleComposeView.setViewTreeViewModelStoreOwner(viewModelStoreOwner)
 
-        // Attach controller and subtitle view to WindowManager
-        windowManager.addView(controllerComposeView, controllerParams)
+        // Attach subtitle view to WindowManager
         try {
             windowManager.addView(subtitleComposeView, subtitleParams)
             isSubtitleViewAttached = true
@@ -206,8 +221,9 @@ class OverlayWidgetService : LifecycleService() {
     override fun onDestroy() {
         super.onDestroy()
         isWidgetActive.value = false
-        if (::controllerComposeView.isInitialized) {
+        if (isControllerViewAttached && ::controllerComposeView.isInitialized) {
             try { windowManager.removeView(controllerComposeView) } catch (_: Exception) {}
+            isControllerViewAttached = false
         }
         if (isSubtitleViewAttached && ::subtitleComposeView.isInitialized) {
             try { windowManager.removeView(subtitleComposeView) } catch (_: Exception) {}
@@ -224,186 +240,101 @@ fun FloatingControllerCapsule(
 ) {
     val isRunning by DubbingSessionRepository.isDubbingRunning.collectAsState()
     val isSubtitleVisible by DubbingSessionRepository.isSubtitleOverlayVisible.collectAsState()
-    val amplitude by DubbingSessionRepository.audioAmplitude.collectAsState()
-
+    val isDubbingMuted by DubbingSessionRepository.isDubbingMuted.collectAsState()
     val haptic = LocalHapticFeedback.current
-
-    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-    val pulseScale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = if (isRunning) 1.25f else 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(750, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulseScale"
-    )
 
     Row(
         modifier = Modifier
             .wrapContentSize()
             .clip(CircleShape)
-            .background(
-                Brush.verticalGradient(
-                    listOf(
-                        Color(0xEE090E1A),
-                        Color(0xF504060C)
-                    )
-                )
-            )
+            .background(Color(0xE60F141E))
             .border(
-                BorderStroke(
-                    1.dp,
-                    if (isRunning) {
-                        Brush.linearGradient(listOf(NeonRose, NeonCoral))
-                    } else {
-                        Brush.linearGradient(listOf(NeonCyan.copy(alpha = 0.6f), NeonBlue.copy(alpha = 0.3f)))
-                    }
-                ),
+                BorderStroke(0.75.dp, Color.White.copy(alpha = 0.15f)),
                 shape = CircleShape
             )
-            .padding(horizontal = 6.dp, vertical = 4.dp)
+            .padding(horizontal = 5.dp, vertical = 3.dp)
             .pointerInput(Unit) {
                 detectDragGestures { change, dragAmount ->
                     change.consume()
                     onDrag(dragAmount.x, dragAmount.y)
                 }
             },
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        // 1. Play / Stop Button with Pulsing Halo
+        // 1. Play / Stop Button (Consistent Red)
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.size(34.dp)
+            modifier = Modifier
+                .size(24.dp)
+                .clip(CircleShape)
+                .background(DangerRed)
+                .clickable {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onToggle(isRunning)
+                }
         ) {
             if (isRunning) {
                 Box(
                     modifier = Modifier
-                        .size((32 * pulseScale).dp)
-                        .clip(CircleShape)
-                        .background(NeonCoral.copy(alpha = 0.25f))
+                        .size(8.dp)
+                        .background(Color.White, shape = RoundedCornerShape(1.5.dp))
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.PlayArrow,
+                    contentDescription = "Start",
+                    tint = Color.White,
+                    modifier = Modifier.size(13.dp)
                 )
             }
+        }
 
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(30.dp)
-                    .clip(CircleShape)
-                    .background(
-                        Brush.linearGradient(
-                            if (isRunning) listOf(NeonRose, NeonCoral) else listOf(NeonCyan, NeonBlue)
-                        )
-                    )
-                    .clickable {
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        onToggle(isRunning)
-                    }
-            ) {
-                if (isRunning) {
-                    Box(
-                        modifier = Modifier
-                            .size(10.dp)
-                            .background(Color.White, shape = RoundedCornerShape(2.dp))
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Default.PlayArrow,
-                        contentDescription = "Start Translate",
-                        tint = Color.White,
-                        modifier = Modifier.size(17.dp)
-                    )
+        // 2. Mute Toggle Button
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(24.dp)
+                .clip(CircleShape)
+                .background(
+                    if (isDubbingMuted) DangerRed.copy(alpha = 0.25f) else Color.White.copy(alpha = 0.08f)
+                )
+                .clickable {
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    DubbingSessionRepository.toggleDubbingMute()
                 }
-            }
+        ) {
+            Icon(
+                imageVector = if (isDubbingMuted) AppIcons.VolumeOff else AppIcons.VolumeUp,
+                contentDescription = "Toggle Mute",
+                tint = if (isDubbingMuted) DangerRed else Color.White.copy(alpha = 0.85f),
+                modifier = Modifier.size(13.dp)
+            )
         }
 
-        // 2. If Running: Live Equalizer + Subtitle Toggle
-        if (isRunning) {
-            Spacer(modifier = Modifier.width(5.dp))
-
-            // 3-Bar Dynamic Equalizer
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(2.5.dp),
-                modifier = Modifier.padding(horizontal = 2.dp)
-            ) {
-                val ampFactor = (amplitude * 1.5f).coerceIn(0.2f, 1f)
-                Box(
-                    modifier = Modifier
-                        .width(2.5.dp)
-                        .height((6 + 10 * ampFactor * pulseScale).dp)
-                        .clip(RoundedCornerShape(1.dp))
-                        .background(NeonCyan)
+        // 3. Subtitle Visibility Toggle Button
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(24.dp)
+                .clip(CircleShape)
+                .background(
+                    if (isSubtitleVisible) Color.White.copy(alpha = 0.16f) else Color.White.copy(alpha = 0.08f)
                 )
-                Box(
-                    modifier = Modifier
-                        .width(2.5.dp)
-                        .height((8 + 12 * ampFactor * (2f - pulseScale)).dp)
-                        .clip(RoundedCornerShape(1.dp))
-                        .background(NeonPurple)
-                )
-                Box(
-                    modifier = Modifier
-                        .width(2.5.dp)
-                        .height((5 + 8 * ampFactor * pulseScale).dp)
-                        .clip(RoundedCornerShape(1.dp))
-                        .background(NeonCyan)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(4.dp))
-
-            // Quick Mute Toggle Button
-            val isDubbingMuted by DubbingSessionRepository.isDubbingMuted.collectAsState()
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(26.dp)
-                    .clip(CircleShape)
-                    .background(
-                        if (isDubbingMuted) NeonCoral.copy(alpha = 0.25f) else Color.White.copy(alpha = 0.08f)
-                    )
-                    .clickable {
-                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                        DubbingSessionRepository.toggleDubbingMute()
-                    }
-            ) {
-                Icon(
-                    imageVector = if (isDubbingMuted) AppIcons.VolumeOff else AppIcons.VolumeUp,
-                    contentDescription = "Toggle Mute",
-                    tint = if (isDubbingMuted) NeonCoral else Color.White.copy(alpha = 0.85f),
-                    modifier = Modifier.size(14.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(4.dp))
-
-            // Subtitle Quick Toggle Button
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(26.dp)
-                    .clip(CircleShape)
-                    .background(
-                        if (isSubtitleVisible) NeonCyan.copy(alpha = 0.20f) else Color.White.copy(alpha = 0.08f)
-                    )
-                    .clickable {
-                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                        DubbingSessionRepository.toggleSubtitleOverlayVisibility()
-                    }
-            ) {
-                Icon(
-                    imageVector = if (isSubtitleVisible) AppIcons.Subtitles else AppIcons.VisibilityOff,
-                    contentDescription = "Toggle Subtitles",
-                    tint = if (isSubtitleVisible) NeonCyan else Color.White.copy(alpha = 0.5f),
-                    modifier = Modifier.size(14.dp)
-                )
-            }
+                .clickable {
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    DubbingSessionRepository.toggleSubtitleOverlayVisibility()
+                }
+        ) {
+            Icon(
+                imageVector = if (isSubtitleVisible) AppIcons.Subtitles else AppIcons.VisibilityOff,
+                contentDescription = "Toggle Subtitles",
+                tint = if (isSubtitleVisible) Color.White else Color.White.copy(alpha = 0.45f),
+                modifier = Modifier.size(13.dp)
+            )
         }
 
-        Spacer(modifier = Modifier.width(4.dp))
-
-        // 3. Compact Close 'X' Button
+        // 4. Close '✕' Button
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
@@ -411,7 +342,7 @@ fun FloatingControllerCapsule(
                 .clip(CircleShape)
                 .background(Color.White.copy(alpha = 0.08f))
                 .clickable {
-                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                     onClose()
                 }
         ) {
@@ -434,6 +365,7 @@ fun FloatingCinemaSubtitles(
     val liveSourceSubtitleText by DubbingSessionRepository.liveSourceSubtitleText.collectAsState()
     val showDualSubtitles by DubbingSessionRepository.showDualSubtitles.collectAsState()
     val connectionStatus by DubbingSessionRepository.connectionStatus.collectAsState()
+    val subtitleHistory by DubbingSessionRepository.subtitleHistory.collectAsState()
 
     val infiniteTransition = rememberInfiniteTransition(label = "listening")
     val listeningAlpha by infiniteTransition.animateFloat(
@@ -446,30 +378,45 @@ fun FloatingCinemaSubtitles(
         label = "listeningAlpha"
     )
 
+    val scrollState = rememberScrollState()
+    LaunchedEffect(liveSubtitleText, subtitleHistory.size) {
+        scrollState.animateScrollTo(scrollState.maxValue)
+    }
+
+    val configuration = LocalConfiguration.current
+    val density = LocalDensity.current
+
+    val screenWidthDp = configuration.screenWidthDp.dp
+    val minWidth = 200.dp
+    val maxWidth = screenWidthDp // Có thể kéo dài hết toàn bộ chiều ngang màn hình
+    // Chiều dài mặc định ban đầu
+    val defaultWidth = 360.dp.coerceIn(minWidth, maxWidth)
+
+    val defaultHeight = 88.dp
+    val minHeight = 72.dp
+    val maxHeight = defaultHeight * 2 // Tối đa 2 lần chiều cao mặc định = 176dp
+
+    var currentWidth by remember { mutableStateOf(defaultWidth) }
+    var currentHeight by remember { mutableStateOf(defaultHeight) }
+
+    val cornerRadius = if (currentWidth >= screenWidthDp - 8.dp) 0.dp else 8.dp
+
     Box(
         modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .widthIn(min = 260.dp, max = 360.dp)
-            .clip(RoundedCornerShape(20.dp))
+            .width(currentWidth)
+            .height(currentHeight)
+            .clip(RoundedCornerShape(cornerRadius))
             .background(
                 Brush.verticalGradient(
                     listOf(
-                        Color(0xF0080D1A),
-                        Color(0xF7040710)
+                        Color(0xF50D111C),
+                        Color(0xFA070A12)
                     )
                 )
             )
             .border(
-                BorderStroke(
-                    1.dp,
-                    Brush.linearGradient(
-                        listOf(
-                            NeonCyan.copy(alpha = 0.45f),
-                            NeonPurple.copy(alpha = 0.25f)
-                        )
-                    )
-                ),
-                shape = RoundedCornerShape(20.dp)
+                BorderStroke(0.75.dp, Color.White.copy(alpha = 0.12f)),
+                shape = RoundedCornerShape(cornerRadius)
             )
             .pointerInput(Unit) {
                 detectDragGestures { change, dragAmount ->
@@ -477,42 +424,33 @@ fun FloatingCinemaSubtitles(
                     onDrag(dragAmount.x, dragAmount.y)
                 }
             }
-            .padding(horizontal = 16.dp, vertical = 10.dp)
+            .padding(horizontal = 12.dp, vertical = 7.dp)
     ) {
-        Column {
-            // Header Bar with Status Dot + Drag Handle + Close
+        Column(modifier = Modifier.fillMaxSize()) {
+            // Header Bar with Status Dot + Title + Drag Handle + Close
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 6.dp)
+                    .padding(bottom = 3.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
-                            .size(7.dp)
+                            .size(6.dp)
                             .clip(CircleShape)
-                            .background(if (connectionStatus == "Gemini Ready" || liveSubtitleText.isNotEmpty()) NeonCyan else NeonCoral)
+                            .background(if (connectionStatus == "Gemini Ready" || liveSubtitleText.isNotEmpty()) StatusActive else StatusIdle)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "iva Subtitles",
-                        color = NeonCyan,
+                        text = "Live Subtitles",
+                        color = Color.White.copy(alpha = 0.75f),
                         fontSize = 10.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        letterSpacing = 1.sp
+                        fontWeight = FontWeight.Medium,
+                        letterSpacing = 0.5.sp
                     )
                 }
-
-                // Drag indicator / handle
-                Box(
-                    modifier = Modifier
-                        .width(28.dp)
-                        .height(3.dp)
-                        .clip(RoundedCornerShape(1.5.dp))
-                        .background(Color.White.copy(alpha = 0.20f))
-                )
 
                 // Minimize icon
                 Box(
@@ -531,44 +469,92 @@ fun FloatingCinemaSubtitles(
                 }
             }
 
-            // Subtitle Content (Dual display if available)
-            if (liveSubtitleText.isNotEmpty() || (showDualSubtitles && liveSourceSubtitleText.isNotEmpty())) {
-                if (showDualSubtitles && liveSourceSubtitleText.isNotEmpty()) {
+            // Fixed-height scrollable content area (Target language only, matching title font size 10sp)
+            val isWaiting = subtitleHistory.isEmpty() && liveSubtitleText.isEmpty()
+            if (isWaiting) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 4.dp),
+                    contentAlignment = Alignment.TopStart
+                ) {
                     Text(
-                        text = liveSourceSubtitleText,
-                        color = TextSecondary.copy(alpha = 0.85f),
-                        fontSize = 12.sp,
-                        lineHeight = 17.sp,
+                        text = stringResource(R.string.subtitles_waiting),
+                        color = TextSecondary.copy(alpha = listeningAlpha),
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Normal,
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 3.dp)
-                    )
-                }
-
-                if (liveSubtitleText.isNotEmpty()) {
-                    Text(
-                        text = liveSubtitleText,
-                        color = Color.White,
-                        fontSize = 15.sp,
-                        lineHeight = 22.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        style = TextStyle(
-                            shadow = Shadow(
-                                color = Color.Black.copy(alpha = 0.85f),
-                                offset = Offset(1f, 1f),
-                                blurRadius = 3f
-                            )
-                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
             } else {
-                Text(
-                    text = stringResource(R.string.subtitles_waiting),
-                    color = TextSecondary.copy(alpha = listeningAlpha),
-                    fontSize = 12.5.sp,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 4.dp, bottom = 4.dp, end = 18.dp)
+                        .verticalScroll(scrollState),
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    // Completed sentences (showing most recent translated lines dimmed)
+                    val recentHistory = subtitleHistory.takeLast(4)
+                    recentHistory.forEach { line ->
+                        if (line.translated.isNotEmpty()) {
+                            Text(
+                                text = line.translated,
+                                color = Color.White.copy(alpha = 0.60f),
+                                fontSize = 9.sp,
+                                lineHeight = 13.sp,
+                                fontWeight = FontWeight.Normal,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 2.dp)
+                            )
+                        }
+                    }
+
+                    // Live Subtitle Content (Target language only, un-bolded, font matching title at 10sp)
+                    if (liveSubtitleText.isNotEmpty()) {
+                        Text(
+                            text = liveSubtitleText,
+                            color = Color.White,
+                            fontSize = 10.sp,
+                            lineHeight = 14.5.sp,
+                            fontWeight = FontWeight.Normal,
+                            style = TextStyle(
+                                shadow = Shadow(
+                                    color = Color.Black.copy(alpha = 0.85f),
+                                    offset = Offset(1f, 1f),
+                                    blurRadius = 3f
+                                )
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            }
+        }
+
+        // Corner Resize Grip Handle (Bottom-Right)
+        Box(
+            contentAlignment = Alignment.BottomEnd,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .size(26.dp)
+                .pointerInput(density) {
+                    detectDragGestures { change, dragAmount ->
+                        change.consume()
+                        with(density) {
+                            currentWidth = (currentWidth + (dragAmount.x * 2.0f).toDp()).coerceIn(minWidth, maxWidth)
+                            currentHeight = (currentHeight + dragAmount.y.toDp()).coerceIn(minHeight, maxHeight)
+                        }
+                    }
+                }
+                .padding(1.dp)
+        ) {
+            Canvas(modifier = Modifier.size(10.dp)) {
+                val stroke = 1.5.dp.toPx()
+                val gripColor = Color.White.copy(alpha = 0.35f)
+                drawLine(gripColor, Offset(size.width, size.height * 0.35f), Offset(size.width * 0.35f, size.height), stroke)
+                drawLine(gripColor, Offset(size.width, size.height * 0.70f), Offset(size.width * 0.70f, size.height), stroke)
             }
         }
     }

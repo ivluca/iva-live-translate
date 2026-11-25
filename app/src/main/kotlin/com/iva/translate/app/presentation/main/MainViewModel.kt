@@ -43,7 +43,7 @@ class MainViewModel(private val repository: UserPreferencesRepository) : ViewMod
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "vi-VN-N")
 
     val dubbingMode: StateFlow<String> = repository.dubbingModeFlow
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UserPreferencesRepository.MODE_HYBRID)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UserPreferencesRepository.MODE_SUBTITLE_ONLY)
 
     val voicePersona: StateFlow<String> = repository.voicePersonaFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "Zephyr")

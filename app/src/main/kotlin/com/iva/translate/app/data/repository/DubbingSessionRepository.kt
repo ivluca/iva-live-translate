@@ -38,6 +38,16 @@ object DubbingSessionRepository {
     private val _liveSourceSubtitleText = MutableStateFlow("")
     val liveSourceSubtitleText: StateFlow<String> = _liveSourceSubtitleText.asStateFlow()
 
+    data class SubtitleLine(val source: String, val translated: String)
+
+    private val MAX_HISTORY = 3
+    private var lastTranslated = ""
+    private var lastSource = ""
+
+    // Recently completed sentences, shown above the live line so sentences/speakers don't stick together
+    private val _subtitleHistory = MutableStateFlow<List<SubtitleLine>>(emptyList())
+    val subtitleHistory: StateFlow<List<SubtitleLine>> = _subtitleHistory.asStateFlow()
+
     private val _isSubtitleOverlayVisible = MutableStateFlow(true)
     val isSubtitleOverlayVisible: StateFlow<Boolean> = _isSubtitleOverlayVisible.asStateFlow()
 
@@ -84,7 +94,7 @@ object DubbingSessionRepository {
         if (isNewTurn) {
             isNewTurn = false
             // Ignore if the new turn is just an identical hallucinated repetition of the previous phrase
-            if (isRepeatedPhrase(current, trimmed) && trimmed.length <= 40) {
+            if (isRepeatedPhrase(lastTranslated, trimmed) && trimmed.length <= 40) {
                 return
             }
             _liveSubtitleText.value = trimmed
@@ -108,9 +118,9 @@ object DubbingSessionRepository {
             }
         }
 
-        _liveSubtitleText.value = if (updated.length > 180) {
-            val spaceIndex = updated.indexOf(' ', updated.length - 130)
-            if (spaceIndex != -1) updated.substring(spaceIndex + 1) else updated.takeLast(130)
+        _liveSubtitleText.value = if (updated.length > 1500) {
+            val spaceIndex = updated.indexOf(' ', updated.length - 1000)
+            if (spaceIndex != -1) updated.substring(spaceIndex + 1) else updated.takeLast(1000)
         } else {
             updated
         }
@@ -125,7 +135,7 @@ object DubbingSessionRepository {
         val current = _liveSourceSubtitleText.value
         if (isNewSourceTurn) {
             isNewSourceTurn = false
-            if (isRepeatedPhrase(current, trimmed) && trimmed.length <= 40) {
+            if (isRepeatedPhrase(lastSource, trimmed) && trimmed.length <= 40) {
                 return
             }
             _liveSourceSubtitleText.value = trimmed
@@ -149,9 +159,9 @@ object DubbingSessionRepository {
             }
         }
 
-        _liveSourceSubtitleText.value = if (updated.length > 180) {
-            val spaceIndex = updated.indexOf(' ', updated.length - 130)
-            if (spaceIndex != -1) updated.substring(spaceIndex + 1) else updated.takeLast(130)
+        _liveSourceSubtitleText.value = if (updated.length > 1500) {
+            val spaceIndex = updated.indexOf(' ', updated.length - 1000)
+            if (spaceIndex != -1) updated.substring(spaceIndex + 1) else updated.takeLast(1000)
         } else {
             updated
         }
@@ -173,11 +183,22 @@ object DubbingSessionRepository {
     }
 
     fun onTurnComplete() {
+        val translated = _liveSubtitleText.value
+        val source = _liveSourceSubtitleText.value
+        if (translated.isNotEmpty() || source.isNotEmpty()) {
+            // Finished sentence becomes its own separate line instead of being merged into the next one
+            _subtitleHistory.value = (_subtitleHistory.value + SubtitleLine(source, translated)).takeLast(MAX_HISTORY)
+            _liveSubtitleText.value = ""
+            _liveSourceSubtitleText.value = ""
+            lastTranslated = translated.ifEmpty { lastTranslated }
+            lastSource = source.ifEmpty { lastSource }
+        }
         isNewTurn = true
         isNewSourceTurn = true
         silenceJob?.cancel()
         silenceJob = repositoryScope.launch {
-            delay(4500)
+            delay(10000)
+            _subtitleHistory.value = emptyList()
             _liveSubtitleText.value = ""
             _liveSourceSubtitleText.value = ""
         }
@@ -185,6 +206,9 @@ object DubbingSessionRepository {
 
     fun clearSubtitle() {
         silenceJob?.cancel()
+        _subtitleHistory.value = emptyList()
+        lastTranslated = ""
+        lastSource = ""
         _liveSubtitleText.value = ""
         _liveSourceSubtitleText.value = ""
         isNewTurn = true

@@ -45,6 +45,13 @@ fun ALADTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        content = content
+        typography = AppTypography,
+        content = {
+            // Ensures every Text uses SN Pro
+            androidx.compose.material3.ProvideTextStyle(
+                androidx.compose.ui.text.TextStyle(fontFamily = SNProFontFamily),
+                content = content
+            )
+        }
     )
 }

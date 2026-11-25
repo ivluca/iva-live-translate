@@ -80,7 +80,7 @@ class AudioPlayerManager(private val context: Context) {
         }
 
         val minBufferSize = AudioTrack.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT)
-        val bufferSize = maxOf(minBufferSize, 4096 * 2)
+        val bufferSize = maxOf(minBufferSize * 2, SAMPLE_RATE * 2 * 2) // ~2s buffer
 
         val audioFormat = AudioFormat.Builder()
             .setSampleRate(SAMPLE_RATE)
@@ -93,14 +93,39 @@ class AudioPlayerManager(private val context: Context) {
             .setAudioFormat(audioFormat)
             .setBufferSizeInBytes(bufferSize)
             .setTransferMode(AudioTrack.MODE_STREAM)
-            .setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY)
+            .setPerformanceMode(AudioTrack.PERFORMANCE_MODE_NONE)
             .build()
 
-        audioTrack?.play()
+        // Jitter buffer: prebuffer ~200ms before playing; re-arm only after a real underrun (track fully drained)
+        var playing = false
+        var bufferedBytes = 0
+        var framesWritten = 0L
+        val prebufferBytes = SAMPLE_RATE * 2 * 200 / 1000
+        audioTrack?.pause()
 
         playbackJob = playerScope.launch {
-            var prevSample = 0f
-            for (chunk in audioChannel) {
+            while (true) {
+                val result = kotlinx.coroutines.withTimeoutOrNull(100) {
+                    audioChannel.receiveCatching()
+                }
+                if (result == null) {
+                    // No new data: start playing any partially buffered tail
+                    if (!playing && bufferedBytes > 0) {
+                        audioTrack?.play()
+                        playing = true
+                    }
+                    continue
+                }
+                val chunk = result.getOrNull() ?: break
+                if (playing) {
+                    val head = (audioTrack?.playbackHeadPosition ?: 0).toLong() and 0xFFFFFFFFL
+                    if (head >= framesWritten) {
+                        // Underrun happened: rebuffer before resuming to avoid choppy audio
+                        try { audioTrack?.pause() } catch (_: Exception) {}
+                        playing = false
+                        bufferedBytes = 0
+                    }
+                }
                 if (isDubbingMuted || currentVolume <= 0.01f) {
                     continue
                 }
@@ -108,7 +133,7 @@ class AudioPlayerManager(private val context: Context) {
                 try {
                     // Direct software PCM scaling with logarithmic curve for 100% audible control on all devices
                     val vol = currentVolume.coerceIn(0f, 1f)
-                    val gain = (vol * vol * 1.35f)
+                    val gain = vol
                     val persona = currentVoicePersona
 
                     val processedChunk = ByteArray(chunk.size)
@@ -128,6 +153,14 @@ class AudioPlayerManager(private val context: Context) {
                     }
 
                     audioTrack?.write(processedChunk, 0, processedChunk.size)
+                    framesWritten += processedChunk.size / 2
+                    if (!playing) {
+                        bufferedBytes += processedChunk.size
+                        if (bufferedBytes >= prebufferBytes) {
+                            audioTrack?.play()
+                            playing = true
+                        }
+                    }
                 } catch (e: Exception) {
                     Log.e(TAG, "Error writing audio chunk", e)
                 }
@@ -142,7 +175,7 @@ class AudioPlayerManager(private val context: Context) {
     fun setDubbingAudio(volume: Float, isMuted: Boolean) {
         currentVolume = volume.coerceIn(0f, 1f)
         isDubbingMuted = isMuted
-        val targetHardwareVolume = if (isMuted) 0f else volume.coerceIn(0f, 1f)
+        val targetHardwareVolume = if (isMuted) 0f else 1f
         try {
             audioTrack?.setVolume(targetHardwareVolume)
         } catch (e: Exception) {

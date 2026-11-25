@@ -29,7 +29,16 @@ class SettingsViewModel(private val repository: UserPreferencesRepository) : Vie
     private val _voicePersona = MutableStateFlow("Zephyr")
     val voicePersona: StateFlow<String> = _voicePersona.asStateFlow()
 
-    private val _dubbingMode = MutableStateFlow(UserPreferencesRepository.MODE_HYBRID)
+    private val _targetLang = MutableStateFlow("vi")
+    val targetLang: StateFlow<String> = _targetLang.asStateFlow()
+
+    // Decoupled session state observed from DubbingSessionRepository
+    val dubbingVolume: StateFlow<Float> = com.iva.translate.app.data.repository.DubbingSessionRepository.dubbingVolume
+    val isDubbingMuted: StateFlow<Boolean> = com.iva.translate.app.data.repository.DubbingSessionRepository.isDubbingMuted
+    val originalVolumeRatio: StateFlow<Float> = com.iva.translate.app.data.repository.DubbingSessionRepository.originalVolumeRatio
+    val isOriginalMuted: StateFlow<Boolean> = com.iva.translate.app.data.repository.DubbingSessionRepository.isOriginalMuted
+
+    private val _dubbingMode = MutableStateFlow(UserPreferencesRepository.MODE_SUBTITLE_ONLY)
     val dubbingMode: StateFlow<String> = _dubbingMode.asStateFlow()
 
     private val _showDualSubtitles = MutableStateFlow(true)
@@ -42,10 +51,67 @@ class SettingsViewModel(private val repository: UserPreferencesRepository) : Vie
                 _volumeRatio.value = repository.volumeRatioFlow.first()
                 _originalVolume.value = repository.originalVolumeFlow.first()
                 _voicePersona.value = repository.voicePersonaFlow.first()
+                _targetLang.value = repository.targetLangFlow.first()
                 _dubbingMode.value = repository.dubbingModeFlow.first()
                 _showDualSubtitles.value = repository.showDualSubtitlesFlow.first()
             } catch (e: Exception) {
                 Log.e("SettingsViewModel", "Failed to load preferences", e)
+            }
+        }
+    }
+
+    fun updateTargetLang(lang: String) {
+        _targetLang.value = lang
+        viewModelScope.launch(exceptionHandler) {
+            try {
+                repository.updateTargetLang(lang)
+                repository.updateTargetDialect("")
+            } catch (e: Exception) {
+                Log.e("SettingsViewModel", "Failed to update target language", e)
+            }
+        }
+    }
+
+    fun setDubbingVolume(vol: Float) {
+        com.iva.translate.app.data.repository.DubbingSessionRepository.setDubbingVolume(vol)
+        viewModelScope.launch(exceptionHandler) {
+            try {
+                repository.updateVolumeRatio(vol)
+            } catch (e: Exception) {
+                Log.e("SettingsViewModel", "Failed to save dubbing volume", e)
+            }
+        }
+    }
+
+    fun toggleDubbingMute() {
+        com.iva.translate.app.data.repository.DubbingSessionRepository.toggleDubbingMute()
+        viewModelScope.launch(exceptionHandler) {
+            try {
+                repository.updateDubbingMuted(com.iva.translate.app.data.repository.DubbingSessionRepository.isDubbingMuted.value)
+            } catch (e: Exception) {
+                Log.e("SettingsViewModel", "Failed to save dubbing mute", e)
+            }
+        }
+    }
+
+    fun setOriginalVolumeRatio(ratio: Float) {
+        com.iva.translate.app.data.repository.DubbingSessionRepository.setOriginalVolumeRatio(ratio)
+        viewModelScope.launch(exceptionHandler) {
+            try {
+                repository.updateOriginalVolume(ratio)
+            } catch (e: Exception) {
+                Log.e("SettingsViewModel", "Failed to save original volume", e)
+            }
+        }
+    }
+
+    fun toggleOriginalMute() {
+        com.iva.translate.app.data.repository.DubbingSessionRepository.toggleOriginalMute()
+        viewModelScope.launch(exceptionHandler) {
+            try {
+                repository.updateOriginalMuted(com.iva.translate.app.data.repository.DubbingSessionRepository.isOriginalMuted.value)
+            } catch (e: Exception) {
+                Log.e("SettingsViewModel", "Failed to save original mute", e)
             }
         }
     }
@@ -84,6 +150,7 @@ class SettingsViewModel(private val repository: UserPreferencesRepository) : Vie
             try {
                 repository.updateApiKey(_userApiKey.value)
                 repository.updateVoicePersona(_voicePersona.value)
+                repository.updateTargetLang(_targetLang.value)
                 repository.updateDubbingMode(_dubbingMode.value)
                 repository.updateShowDualSubtitles(_showDualSubtitles.value)
             } catch (e: Exception) {

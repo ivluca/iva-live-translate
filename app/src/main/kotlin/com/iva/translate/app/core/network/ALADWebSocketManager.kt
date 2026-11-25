@@ -17,6 +17,11 @@ class ALADWebSocketManager(private val client: OkHttpClient) {
 
     companion object {
         private const val TAG = "ALADWebSocketManager"
+        // true: native-audio model + interpreter prompt (more natural voice).
+        // false: dedicated live-translate model (translationConfig, minimal prompt).
+        private const val USE_NATIVE_AUDIO = false
+        private const val MODEL_NATIVE = "models/gemini-2.5-flash-native-audio-preview-12-2025"
+        private const val MODEL_TRANSLATE = "models/gemini-3.5-live-translate-preview"
         private const val GEMINI_WS_URL = "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent"
     }
 
@@ -50,7 +55,6 @@ class ALADWebSocketManager(private val client: OkHttpClient) {
 
             override fun onMessage(webSocket: WebSocket, text: String) {
                 if (webSocket !== this@ALADWebSocketManager.webSocket) return
-                Log.d(TAG, "Raw message: $text")
                 try {
                     val json = JSONObject(text)
 
@@ -155,19 +159,18 @@ class ALADWebSocketManager(private val client: OkHttpClient) {
         val dialectInstruction = com.iva.translate.app.presentation.main.autoAccentInstructions[targetLangCode]
             ?: "Speak in a natural, clear, standard native accent for $targetLangCode."
 
-        val voicePrompt = when (voicePersona) {
-            "Aoede" -> "Speak strictly with a warm, natural, gentle feminine voice. Do not mimic or adapt to the source speaker's pitch or acoustic timbre."
-            "Kore" -> "Speak strictly with a clear, energetic, firm feminine tone. Do not mimic or adapt to the source speaker's pitch or acoustic timbre."
-            "Zephyr" -> "Speak strictly with a clear, bright, high-pitched feminine tone. Do not mimic or adapt to the source speaker's pitch or acoustic timbre."
-            "Puck" -> "Speak strictly with a lively, upbeat, natural masculine voice. Do not mimic or adapt to the source speaker's pitch or acoustic timbre."
-            "Charon" -> "Speak strictly with a calm, deep, professional masculine tone. Do not mimic or adapt to the source speaker's pitch or acoustic timbre."
-            "Fenrir" -> "Speak strictly with a firm, confident, authoritative masculine voice. Do not mimic or adapt to the source speaker's pitch or acoustic timbre."
-            else -> "Speak strictly with a natural, clear voice."
+        val langName = java.util.Locale(targetLangCode).getDisplayLanguage(java.util.Locale.ENGLISH)
+        val systemText = if (USE_NATIVE_AUDIO) {
+            "You are a professional simultaneous interpreter. Translate everything you hear into $langName and speak only the translation, never answering or commenting. " +
+                "Sound like a natural native speaker: fluent, warm, expressive intonation, conversational pacing, idiomatic phrasing rather than word-for-word. " +
+                "$dialectInstruction Keep each translation brief and say it once. If there is no clear speech, stay silent."
+        } else {
+            dialectInstruction
         }
 
         val setupPayload = JSONObject().apply {
             put("setup", JSONObject().apply {
-                put("model", "models/gemini-3.5-live-translate-preview")
+                put("model", if (USE_NATIVE_AUDIO) MODEL_NATIVE else MODEL_TRANSLATE)
                 put("generationConfig", JSONObject().apply {
                     put("responseModalities", JSONArray().put("AUDIO"))
 
@@ -179,18 +182,18 @@ class ALADWebSocketManager(private val client: OkHttpClient) {
                         })
                     })
 
-                    put("translationConfig", JSONObject().apply {
-                        put("targetLanguageCode", targetLangCode)
-                        put("echoTargetLanguage", true)
-                    })
+                    if (!USE_NATIVE_AUDIO) {
+                        put("translationConfig", JSONObject().apply {
+                            put("targetLanguageCode", targetLangCode)
+                        })
+                    }
                 })
 
                 put("systemInstruction", JSONObject().apply {
                     put("parts", JSONArray().put(JSONObject().apply {
-                        put("text", "You are an expert real-time AI live audio translator. $dialectInstruction $voicePrompt Maintain natural pacing and high clarity. CRITICAL RULES: 1) Translate each spoken phrase or sentence ONLY ONCE. 2) Never repeat or loop a previous translation when the speaker pauses, stays silent, or during background noise/music. 3) If there is no new intelligible speech, remain completely silent and output nothing.")
+                        put("text", systemText)
                     }))
                 })
-
                 // Direct children of BidiGenerateContentSetup according to Google Gemini Live API specification
                 put("inputAudioTranscription", JSONObject())
                 put("outputAudioTranscription", JSONObject())
